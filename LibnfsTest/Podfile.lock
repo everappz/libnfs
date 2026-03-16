@@ -1,16 +1,18 @@
 PODS:
-  - libnfs (16.2.0)
+  - libnfs/Core (16.2.0)
+  - libnfs/ObjC (16.2.0):
+    - libnfs/Core
 
 DEPENDENCIES:
-  - libnfs (from `../`)
+  - libnfs/ObjC (from `../`)
 
 EXTERNAL SOURCES:
   libnfs:
     :path: "../"
 
 SPEC CHECKSUMS:
-  libnfs: ec128d8fb190fc727f535a7194c57eab8b7389b1
+  libnfs: ae33ceda0541b2f0ef1fb46e51ed9c50f120c059
 
-PODFILE CHECKSUM: 57d5332781b80f0a20f07fc1b93b42921c66e7de
+PODFILE CHECKSUM: 1cf88ab2680efa63f1f203e6ed69516d6c03597f
 
 COCOAPODS: 1.16.2

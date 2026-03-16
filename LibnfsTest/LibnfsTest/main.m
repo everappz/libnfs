@@ -1,6 +1,8 @@
 #import <Foundation/Foundation.h>
 #include <nfsc/libnfs.h>
 #include <nfsc/libnfs-raw.h>
+#import "NFSClient.h"
+#import "NFSFileItem.h"
 
 int main(int argc, const char * argv[]) {
     @autoreleasepool {
@@ -43,7 +45,23 @@ int main(int argc, const char * argv[]) {
         nfs_destroy_context(nfs);
         NSLog(@"OK: cleanup done");
 
-        NSLog(@"All checks passed - libnfs pod is working correctly.");
+        NSLog(@"All C API checks passed.");
+
+        // ObjC wrapper tests
+        NSLog(@"--- ObjC wrapper tests ---");
+
+        NSURL *serverURL = [NSURL URLWithString:@"nfs://127.0.0.1"];
+        LNFSClient *client = [[LNFSClient alloc] initWithURL:serverURL];
+        NSLog(@"OK: LNFSClient created with URL: %@", serverURL);
+
+        client.timeout = 30.0;
+        NSLog(@"OK: timeout set to %.1f", client.timeout);
+        NSLog(@"OK: uid=%d gid=%d", client.uid, client.gid);
+
+        LNFSFileItem *item = [[LNFSFileItem alloc] init];
+        NSLog(@"OK: LNFSFileItem created: %@", item);
+
+        NSLog(@"All checks passed - libnfs pod with ObjC wrapper is working correctly.");
     }
     return 0;
 }

@@ -14,51 +14,63 @@ Pod::Spec.new do |s|
   s.osx.deployment_target = '10.15'
   s.tvos.deployment_target = '13.0'
 
-  s.source_files =
-    'apple-config/config.h',
-    'include/**/*.h',
-    'lib/*.{c,h}',
-    'mount/*.{c,h}',
-    'nfs/*.{c,h}',
-    'nfs4/*.{c,h}',
-    'nlm/*.{c,h}',
-    'nsm/*.{c,h}',
-    'portmap/*.{c,h}',
-    'rquota/*.{c,h}'
-
-  s.public_header_files =
-    'include/nfsc/libnfs.h',
-    'include/nfsc/libnfs-raw.h',
-    'include/nfsc/libnfs-zdr.h',
-    'mount/libnfs-raw-mount.h',
-    'nfs/libnfs-raw-nfs.h',
-    'nfs4/libnfs-raw-nfs4.h',
-    'nlm/libnfs-raw-nlm.h',
-    'nsm/libnfs-raw-nsm.h',
-    'portmap/libnfs-raw-portmap.h',
-    'rquota/libnfs-raw-rquota.h'
-
-  s.private_header_files =
-    'apple-config/config.h',
-    'include/libnfs-private.h',
-    'include/libnfs-multithreading.h',
-    'include/slist.h',
-    'lib/krb5-wrapper.h'
-
-  s.exclude_files =
-    'include/win32/**/*',
-    'lib/libnfs-win32.def'
-
-  s.header_dir = 'nfsc'
-
-  s.compiler_flags = '-Wno-shorten-64-to-32'
-
-  s.pod_target_xcconfig = {
-    'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}/apple-config" "${PODS_TARGET_SRCROOT}/include" "${PODS_TARGET_SRCROOT}/include/nfsc" "${PODS_TARGET_SRCROOT}/lib" "${PODS_TARGET_SRCROOT}/mount" "${PODS_TARGET_SRCROOT}/nfs" "${PODS_TARGET_SRCROOT}/nfs4" "${PODS_TARGET_SRCROOT}/nlm" "${PODS_TARGET_SRCROOT}/nsm" "${PODS_TARGET_SRCROOT}/portmap" "${PODS_TARGET_SRCROOT}/rquota"',
-    'GCC_PREPROCESSOR_DEFINITIONS' => 'HAVE_CONFIG_H=1 _U_=__attribute__((unused))',
-  }
-
   s.preserve_paths = 'apple-config/**/*', 'cmake/**/*', 'COPYING', 'LICENCE-*.txt'
   s.libraries = 'c'
   s.requires_arc = false
+
+  s.default_subspecs = 'Core'
+
+  s.subspec 'Core' do |core|
+    core.source_files =
+      'apple-config/config.h',
+      'include/**/*.h',
+      'lib/*.{c,h}',
+      'mount/*.{c,h}',
+      'nfs/*.{c,h}',
+      'nfs4/*.{c,h}',
+      'nlm/*.{c,h}',
+      'nsm/*.{c,h}',
+      'portmap/*.{c,h}',
+      'rquota/*.{c,h}'
+
+    core.public_header_files =
+      'include/nfsc/libnfs.h',
+      'include/nfsc/libnfs-raw.h',
+      'include/nfsc/libnfs-zdr.h',
+      'mount/libnfs-raw-mount.h',
+      'nfs/libnfs-raw-nfs.h',
+      'nfs4/libnfs-raw-nfs4.h',
+      'nlm/libnfs-raw-nlm.h',
+      'nsm/libnfs-raw-nsm.h',
+      'portmap/libnfs-raw-portmap.h',
+      'rquota/libnfs-raw-rquota.h'
+
+    core.private_header_files =
+      'apple-config/config.h',
+      'include/libnfs-private.h',
+      'include/libnfs-multithreading.h',
+      'include/slist.h',
+      'lib/krb5-wrapper.h'
+
+    core.exclude_files =
+      'include/win32/**/*',
+      'lib/libnfs-win32.def'
+
+    core.header_dir = 'nfsc'
+
+    core.compiler_flags = '-Wno-shorten-64-to-32'
+
+    core.pod_target_xcconfig = {
+      'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}/apple-config" "${PODS_TARGET_SRCROOT}/include" "${PODS_TARGET_SRCROOT}/include/nfsc" "${PODS_TARGET_SRCROOT}/lib" "${PODS_TARGET_SRCROOT}/mount" "${PODS_TARGET_SRCROOT}/nfs" "${PODS_TARGET_SRCROOT}/nfs4" "${PODS_TARGET_SRCROOT}/nlm" "${PODS_TARGET_SRCROOT}/nsm" "${PODS_TARGET_SRCROOT}/portmap" "${PODS_TARGET_SRCROOT}/rquota"',
+      'GCC_PREPROCESSOR_DEFINITIONS' => 'HAVE_CONFIG_H=1 _U_=__attribute__((unused))',
+    }
+  end
+
+  s.subspec 'ObjC' do |objc|
+    objc.source_files = 'objc-wrapper/*.{h,m}'
+    objc.public_header_files = 'objc-wrapper/NFSClient.h', 'objc-wrapper/NFSFileItem.h'
+    objc.private_header_files = 'objc-wrapper/NFSContext.h'
+    objc.dependency 'libnfs/Core'
+    objc.requires_arc = true
+  end
 end

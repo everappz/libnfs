@@ -1,5 +1,5 @@
 platform :osx, '10.15'
 
 target 'LibnfsTest' do
-  pod 'libnfs', :path => '../'
+  pod 'libnfs/ObjC', :path => '../'
 end
