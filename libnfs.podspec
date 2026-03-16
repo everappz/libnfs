@@ -64,6 +64,7 @@ Pod::Spec.new do |s|
     core.pod_target_xcconfig = {
       'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}/apple-config" "${PODS_TARGET_SRCROOT}/include" "${PODS_TARGET_SRCROOT}/include/nfsc" "${PODS_TARGET_SRCROOT}/lib" "${PODS_TARGET_SRCROOT}/mount" "${PODS_TARGET_SRCROOT}/nfs" "${PODS_TARGET_SRCROOT}/nfs4" "${PODS_TARGET_SRCROOT}/nlm" "${PODS_TARGET_SRCROOT}/nsm" "${PODS_TARGET_SRCROOT}/portmap" "${PODS_TARGET_SRCROOT}/rquota"',
       'GCC_PREPROCESSOR_DEFINITIONS' => 'HAVE_CONFIG_H=1 _U_=__attribute__((unused))',
+      'CLANG_ENABLE_MODULES' => 'NO',
     }
 
   end

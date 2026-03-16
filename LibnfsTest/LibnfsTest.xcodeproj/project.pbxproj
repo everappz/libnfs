@@ -7,22 +7,22 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		0E01C04975EA3E40AF4C2D3E /* libPods-LibnfsTestiOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 38796AF7EC3B7521468B8118 /* libPods-LibnfsTestiOS.a */; };
 		1A062CE3B425F32673BFABE1 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FA758D1180190D0596C94960 /* Foundation.framework */; };
 		41810FBDB4638406DCC6FAD6 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = CB0175108BBEA3EDAE719D25 /* main.m */; };
-		61E6C18DD18CE884B68DAEEF /* libPods-LibnfsTest.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8541108A495A305B3ECB5F23 /* libPods-LibnfsTest.a */; };
+		6A4D9C2BF5F7385E0928FDE1 /* Pods_LibnfsTestiOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 34CBF63EF3B48BED9E1D8030 /* Pods_LibnfsTestiOS.framework */; };
 		8718EB72B359DBA5946EB911 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 3776DD852CFB66B45D8352AB /* main.m */; };
+		9DB0E50168C16C0F63CD8F40 /* Pods_LibnfsTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0E69A50A937FB7B3B7FFF247 /* Pods_LibnfsTest.framework */; };
 		CC746C59CE9C32BEDECE9E26 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 78F02F1CC1B9849D45F80993 /* Cocoa.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		063B3C7A3C32250B93608D5D /* LibnfsTestiOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LibnfsTestiOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		0E69A50A937FB7B3B7FFF247 /* Pods_LibnfsTest.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_LibnfsTest.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		34CBF63EF3B48BED9E1D8030 /* Pods_LibnfsTestiOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_LibnfsTestiOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		3776DD852CFB66B45D8352AB /* main.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
-		38796AF7EC3B7521468B8118 /* libPods-LibnfsTestiOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-LibnfsTestiOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		39F76A0259B9550C063E45A5 /* Pods-LibnfsTest.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-LibnfsTest.release.xcconfig"; path = "Target Support Files/Pods-LibnfsTest/Pods-LibnfsTest.release.xcconfig"; sourceTree = "<group>"; };
 		4783ECBBF44EF303C6105489 /* LibnfsTest */ = {isa = PBXFileReference; includeInIndex = 0; path = LibnfsTest; sourceTree = BUILT_PRODUCTS_DIR; };
 		78F02F1CC1B9849D45F80993 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.0.sdk/System/Library/Frameworks/Cocoa.framework; sourceTree = DEVELOPER_DIR; };
-		8541108A495A305B3ECB5F23 /* libPods-LibnfsTest.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-LibnfsTest.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		8DFD23BF526DE091B566EA17 /* Pods-LibnfsTestiOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-LibnfsTestiOS.debug.xcconfig"; path = "Target Support Files/Pods-LibnfsTestiOS/Pods-LibnfsTestiOS.debug.xcconfig"; sourceTree = "<group>"; };
 		A559F7FC9C8DD3FA63EBC9A7 /* Pods-LibnfsTestiOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-LibnfsTestiOS.release.xcconfig"; path = "Target Support Files/Pods-LibnfsTestiOS/Pods-LibnfsTestiOS.release.xcconfig"; sourceTree = "<group>"; };
 		CAE97F72CC95E5C9B3CFA0C5 /* Pods-LibnfsTest.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-LibnfsTest.debug.xcconfig"; path = "Target Support Files/Pods-LibnfsTest/Pods-LibnfsTest.debug.xcconfig"; sourceTree = "<group>"; };
@@ -36,7 +36,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				CC746C59CE9C32BEDECE9E26 /* Cocoa.framework in Frameworks */,
-				61E6C18DD18CE884B68DAEEF /* libPods-LibnfsTest.a in Frameworks */,
+				9DB0E50168C16C0F63CD8F40 /* Pods_LibnfsTest.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -45,7 +45,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				1A062CE3B425F32673BFABE1 /* Foundation.framework in Frameworks */,
-				0E01C04975EA3E40AF4C2D3E /* libPods-LibnfsTestiOS.a in Frameworks */,
+				6A4D9C2BF5F7385E0928FDE1 /* Pods_LibnfsTestiOS.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -123,8 +123,8 @@
 			children = (
 				76156EA3A83197AFCD3E85A7 /* OS X */,
 				78DF9EE706C891F732EC3460 /* iOS */,
-				8541108A495A305B3ECB5F23 /* libPods-LibnfsTest.a */,
-				38796AF7EC3B7521468B8118 /* libPods-LibnfsTestiOS.a */,
+				0E69A50A937FB7B3B7FFF247 /* Pods_LibnfsTest.framework */,
+				34CBF63EF3B48BED9E1D8030 /* Pods_LibnfsTestiOS.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -157,6 +157,7 @@
 				F129B2CA88AC233746DB77F3 /* Sources */,
 				C59F76848E858F06D5226945 /* Frameworks */,
 				D26444EAFE2C0B3DF9E34A10 /* Resources */,
+				C636818E93DA45ADBE27AD0B /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -250,6 +251,24 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		C636818E93DA45ADBE27AD0B /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-LibnfsTestiOS/Pods-LibnfsTestiOS-frameworks.sh",
+				"${BUILT_PRODUCTS_DIR}/libnfs-iOS/libnfs.framework",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/libnfs.framework",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-LibnfsTestiOS/Pods-LibnfsTestiOS-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
