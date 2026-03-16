@@ -14,7 +14,7 @@ Pod::Spec.new do |s|
   s.osx.deployment_target = '10.15'
   s.tvos.deployment_target = '13.0'
 
-  s.preserve_paths = 'apple-config/**/*', 'cmake/**/*', 'COPYING', 'LICENCE-*.txt'
+  s.preserve_paths = 'apple-config/**/*', 'cmake/**/*', 'COPYING', 'LICENCE-*.txt', 'include/slist.h'
   s.libraries = 'c'
   s.requires_arc = false
 
