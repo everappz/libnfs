@@ -66,23 +66,6 @@ Pod::Spec.new do |s|
       'GCC_PREPROCESSOR_DEFINITIONS' => 'HAVE_CONFIG_H=1 _U_=__attribute__((unused))',
     }
 
-    # Create symlinks in include/nfsc/ for protocol headers so that
-    # #include <nfsc/libnfs-raw-mount.h> etc. resolve via HEADER_SEARCH_PATHS.
-    # Needed for CocoaPods framework mode where header_dir virtual mapping
-    # doesn't apply during the pod's own compilation.
-    core.script_phases = [{
-      :name => 'Create nfsc header symlinks',
-      :script => 'cd "${PODS_TARGET_SRCROOT}/include/nfsc" && ' \
-                 '[ -L libnfs-raw-mount.h ]   || ln -s ../../mount/libnfs-raw-mount.h libnfs-raw-mount.h; ' \
-                 '[ -L libnfs-raw-nfs.h ]     || ln -s ../../nfs/libnfs-raw-nfs.h libnfs-raw-nfs.h; ' \
-                 '[ -L libnfs-raw-nfs4.h ]    || ln -s ../../nfs4/libnfs-raw-nfs4.h libnfs-raw-nfs4.h; ' \
-                 '[ -L libnfs-raw-nlm.h ]     || ln -s ../../nlm/libnfs-raw-nlm.h libnfs-raw-nlm.h; ' \
-                 '[ -L libnfs-raw-nsm.h ]     || ln -s ../../nsm/libnfs-raw-nsm.h libnfs-raw-nsm.h; ' \
-                 '[ -L libnfs-raw-portmap.h ] || ln -s ../../portmap/libnfs-raw-portmap.h libnfs-raw-portmap.h; ' \
-                 '[ -L libnfs-raw-rquota.h ]  || ln -s ../../rquota/libnfs-raw-rquota.h libnfs-raw-rquota.h; ' \
-                 'true',
-      :execution_position => :before_compile,
-    }]
   end
 
   s.subspec 'ObjC' do |objc|

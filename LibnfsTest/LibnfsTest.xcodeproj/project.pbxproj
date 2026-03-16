@@ -7,97 +7,138 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		026581CEEB7981BF23966661 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7F171D4FD17E3C6C073358C5 /* Cocoa.framework */; };
-		2D3E79A718CF069B48965A10 /* libPods-LibnfsTest.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D269F65A4C264EC5DF8E14BF /* libPods-LibnfsTest.a */; };
-		5290FE786FE055D9BD628508 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = B5B45364F8B022B077DAF37E /* main.m */; };
+		0E01C04975EA3E40AF4C2D3E /* libPods-LibnfsTestiOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 38796AF7EC3B7521468B8118 /* libPods-LibnfsTestiOS.a */; };
+		1A062CE3B425F32673BFABE1 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FA758D1180190D0596C94960 /* Foundation.framework */; };
+		41810FBDB4638406DCC6FAD6 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = CB0175108BBEA3EDAE719D25 /* main.m */; };
+		61E6C18DD18CE884B68DAEEF /* libPods-LibnfsTest.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8541108A495A305B3ECB5F23 /* libPods-LibnfsTest.a */; };
+		8718EB72B359DBA5946EB911 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 3776DD852CFB66B45D8352AB /* main.m */; };
+		CC746C59CE9C32BEDECE9E26 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 78F02F1CC1B9849D45F80993 /* Cocoa.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		0C85D81FA6B222BF4199B06F /* Pods-LibnfsTest.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-LibnfsTest.debug.xcconfig"; path = "Target Support Files/Pods-LibnfsTest/Pods-LibnfsTest.debug.xcconfig"; sourceTree = "<group>"; };
-		0FBBD56F22270D4C2E8FEA1E /* LibnfsTest */ = {isa = PBXFileReference; includeInIndex = 0; path = LibnfsTest; sourceTree = BUILT_PRODUCTS_DIR; };
-		7F171D4FD17E3C6C073358C5 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.0.sdk/System/Library/Frameworks/Cocoa.framework; sourceTree = DEVELOPER_DIR; };
-		B5B45364F8B022B077DAF37E /* main.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
-		B740D8ABFF5AA8EBA4D93B3A /* Pods-LibnfsTest.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-LibnfsTest.release.xcconfig"; path = "Target Support Files/Pods-LibnfsTest/Pods-LibnfsTest.release.xcconfig"; sourceTree = "<group>"; };
-		D269F65A4C264EC5DF8E14BF /* libPods-LibnfsTest.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-LibnfsTest.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		063B3C7A3C32250B93608D5D /* LibnfsTestiOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LibnfsTestiOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		3776DD852CFB66B45D8352AB /* main.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		38796AF7EC3B7521468B8118 /* libPods-LibnfsTestiOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-LibnfsTestiOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		39F76A0259B9550C063E45A5 /* Pods-LibnfsTest.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-LibnfsTest.release.xcconfig"; path = "Target Support Files/Pods-LibnfsTest/Pods-LibnfsTest.release.xcconfig"; sourceTree = "<group>"; };
+		4783ECBBF44EF303C6105489 /* LibnfsTest */ = {isa = PBXFileReference; includeInIndex = 0; path = LibnfsTest; sourceTree = BUILT_PRODUCTS_DIR; };
+		78F02F1CC1B9849D45F80993 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.0.sdk/System/Library/Frameworks/Cocoa.framework; sourceTree = DEVELOPER_DIR; };
+		8541108A495A305B3ECB5F23 /* libPods-LibnfsTest.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-LibnfsTest.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		8DFD23BF526DE091B566EA17 /* Pods-LibnfsTestiOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-LibnfsTestiOS.debug.xcconfig"; path = "Target Support Files/Pods-LibnfsTestiOS/Pods-LibnfsTestiOS.debug.xcconfig"; sourceTree = "<group>"; };
+		A559F7FC9C8DD3FA63EBC9A7 /* Pods-LibnfsTestiOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-LibnfsTestiOS.release.xcconfig"; path = "Target Support Files/Pods-LibnfsTestiOS/Pods-LibnfsTestiOS.release.xcconfig"; sourceTree = "<group>"; };
+		CAE97F72CC95E5C9B3CFA0C5 /* Pods-LibnfsTest.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-LibnfsTest.debug.xcconfig"; path = "Target Support Files/Pods-LibnfsTest/Pods-LibnfsTest.debug.xcconfig"; sourceTree = "<group>"; };
+		CB0175108BBEA3EDAE719D25 /* main.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		FA758D1180190D0596C94960 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		C4EBFF59993CAB7B1C297C00 /* Frameworks */ = {
+		8BA41AF7F800C94EC6B1C425 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				026581CEEB7981BF23966661 /* Cocoa.framework in Frameworks */,
-				2D3E79A718CF069B48965A10 /* libPods-LibnfsTest.a in Frameworks */,
+				CC746C59CE9C32BEDECE9E26 /* Cocoa.framework in Frameworks */,
+				61E6C18DD18CE884B68DAEEF /* libPods-LibnfsTest.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C59F76848E858F06D5226945 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1A062CE3B425F32673BFABE1 /* Foundation.framework in Frameworks */,
+				0E01C04975EA3E40AF4C2D3E /* libPods-LibnfsTestiOS.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		0468EEE8CDA289D6AFC5AB17 /* Pods */ = {
+		10B21DC052881EF44FEF2F6D /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				B740D8ABFF5AA8EBA4D93B3A /* Pods-LibnfsTest.release.xcconfig */,
-				0C85D81FA6B222BF4199B06F /* Pods-LibnfsTest.debug.xcconfig */,
+				39F76A0259B9550C063E45A5 /* Pods-LibnfsTest.release.xcconfig */,
+				CAE97F72CC95E5C9B3CFA0C5 /* Pods-LibnfsTest.debug.xcconfig */,
+				A559F7FC9C8DD3FA63EBC9A7 /* Pods-LibnfsTestiOS.release.xcconfig */,
+				8DFD23BF526DE091B566EA17 /* Pods-LibnfsTestiOS.debug.xcconfig */,
 			);
 			name = Pods;
 			path = Pods;
 			sourceTree = "<group>";
 		};
-		4A65E32EDA6327D039FECDB6 = {
+		3B781633CA96000294F9A3CF = {
 			isa = PBXGroup;
 			children = (
-				83F6DFBEECE59186AF97E974 /* Products */,
-				7409B05F76C34987C7498355 /* Frameworks */,
-				4CA99DD124943138D15EBDBF /* LibnfsTest */,
-				0468EEE8CDA289D6AFC5AB17 /* Pods */,
+				83E689DF3E5CBB4B3976C88B /* Products */,
+				F46EFDA04DC68D0B942F39C4 /* Frameworks */,
+				582AC424F60969B190B6BC0A /* LibnfsTest */,
+				9B7B989607742878319986BE /* LibnfsTestiOS */,
+				10B21DC052881EF44FEF2F6D /* Pods */,
 			);
 			sourceTree = "<group>";
 		};
-		4CA99DD124943138D15EBDBF /* LibnfsTest */ = {
+		582AC424F60969B190B6BC0A /* LibnfsTest */ = {
 			isa = PBXGroup;
 			children = (
-				B5B45364F8B022B077DAF37E /* main.m */,
+				CB0175108BBEA3EDAE719D25 /* main.m */,
 			);
 			name = LibnfsTest;
 			path = LibnfsTest;
 			sourceTree = "<group>";
 		};
-		7409B05F76C34987C7498355 /* Frameworks */ = {
+		76156EA3A83197AFCD3E85A7 /* OS X */ = {
 			isa = PBXGroup;
 			children = (
-				E2E18D6AD5A961DC420155FD /* OS X */,
-				D269F65A4C264EC5DF8E14BF /* libPods-LibnfsTest.a */,
+				78F02F1CC1B9849D45F80993 /* Cocoa.framework */,
 			);
-			name = Frameworks;
+			name = "OS X";
 			sourceTree = "<group>";
 		};
-		83F6DFBEECE59186AF97E974 /* Products */ = {
+		78DF9EE706C891F732EC3460 /* iOS */ = {
 			isa = PBXGroup;
 			children = (
-				0FBBD56F22270D4C2E8FEA1E /* LibnfsTest */,
+				FA758D1180190D0596C94960 /* Foundation.framework */,
+			);
+			name = iOS;
+			sourceTree = "<group>";
+		};
+		83E689DF3E5CBB4B3976C88B /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				4783ECBBF44EF303C6105489 /* LibnfsTest */,
+				063B3C7A3C32250B93608D5D /* LibnfsTestiOS.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
 		};
-		E2E18D6AD5A961DC420155FD /* OS X */ = {
+		9B7B989607742878319986BE /* LibnfsTestiOS */ = {
 			isa = PBXGroup;
 			children = (
-				7F171D4FD17E3C6C073358C5 /* Cocoa.framework */,
+				3776DD852CFB66B45D8352AB /* main.m */,
 			);
-			name = "OS X";
+			name = LibnfsTestiOS;
+			path = LibnfsTestiOS;
+			sourceTree = "<group>";
+		};
+		F46EFDA04DC68D0B942F39C4 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				76156EA3A83197AFCD3E85A7 /* OS X */,
+				78DF9EE706C891F732EC3460 /* iOS */,
+				8541108A495A305B3ECB5F23 /* libPods-LibnfsTest.a */,
+				38796AF7EC3B7521468B8118 /* libPods-LibnfsTestiOS.a */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		C98BAB10AA49654224D7A4C1 /* LibnfsTest */ = {
+		C25480A24716BA6EC6A9E2EF /* LibnfsTest */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 59B621609D56C0C87EC14240 /* Build configuration list for PBXNativeTarget "LibnfsTest" */;
+			buildConfigurationList = C0166EFF673E3180E5EDACF3 /* Build configuration list for PBXNativeTarget "LibnfsTest" */;
 			buildPhases = (
-				944C74EE122DE1FEC9D1ECF1 /* [CP] Check Pods Manifest.lock */,
-				EBD550AA324A1DFA032C6376 /* Sources */,
-				C4EBFF59993CAB7B1C297C00 /* Frameworks */,
+				5A4B440DC6312762929D35E7 /* [CP] Check Pods Manifest.lock */,
+				6D6F5143CAAB51F823059A4A /* Sources */,
+				8BA41AF7F800C94EC6B1C425 /* Frameworks */,
 			);
 			buildRules = (
 			);
@@ -105,19 +146,37 @@
 			);
 			name = LibnfsTest;
 			productName = LibnfsTest;
-			productReference = 0FBBD56F22270D4C2E8FEA1E /* LibnfsTest */;
+			productReference = 4783ECBBF44EF303C6105489 /* LibnfsTest */;
 			productType = "com.apple.product-type.tool";
+		};
+		DE4CBA34855C543974C93EEE /* LibnfsTestiOS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 2C080C52824EC59A9A16AA37 /* Build configuration list for PBXNativeTarget "LibnfsTestiOS" */;
+			buildPhases = (
+				C420EA3C90FA855F64157948 /* [CP] Check Pods Manifest.lock */,
+				F129B2CA88AC233746DB77F3 /* Sources */,
+				C59F76848E858F06D5226945 /* Frameworks */,
+				D26444EAFE2C0B3DF9E34A10 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = LibnfsTestiOS;
+			productName = LibnfsTestiOS;
+			productReference = 063B3C7A3C32250B93608D5D /* LibnfsTestiOS.app */;
+			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
-		43D56225728A2C1DBF6DC863 /* Project object */ = {
+		D4C031946072A58DBCDB8653 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
 				LastSwiftUpdateCheck = 1600;
 				LastUpgradeCheck = 1600;
 			};
-			buildConfigurationList = 6E38A2CBC081EB220115FFC2 /* Build configuration list for PBXProject "LibnfsTest" */;
+			buildConfigurationList = FDF723FB5F80A3F6FB637A2C /* Build configuration list for PBXProject "LibnfsTest" */;
 			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -125,20 +184,31 @@
 				en,
 				Base,
 			);
-			mainGroup = 4A65E32EDA6327D039FECDB6;
+			mainGroup = 3B781633CA96000294F9A3CF;
 			minimizedProjectReferenceProxies = 0;
 			preferredProjectObjectVersion = 77;
-			productRefGroup = 83F6DFBEECE59186AF97E974 /* Products */;
+			productRefGroup = 83E689DF3E5CBB4B3976C88B /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				C98BAB10AA49654224D7A4C1 /* LibnfsTest */,
+				C25480A24716BA6EC6A9E2EF /* LibnfsTest */,
+				DE4CBA34855C543974C93EEE /* LibnfsTestiOS */,
 			);
 		};
 /* End PBXProject section */
 
+/* Begin PBXResourcesBuildPhase section */
+		D26444EAFE2C0B3DF9E34A10 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
 /* Begin PBXShellScriptBuildPhase section */
-		944C74EE122DE1FEC9D1ECF1 /* [CP] Check Pods Manifest.lock */ = {
+		5A4B440DC6312762929D35E7 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -160,32 +230,133 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
+		C420EA3C90FA855F64157948 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-LibnfsTestiOS-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		EBD550AA324A1DFA032C6376 /* Sources */ = {
+		6D6F5143CAAB51F823059A4A /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				5290FE786FE055D9BD628508 /* main.m in Sources */,
+				41810FBDB4638406DCC6FAD6 /* main.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F129B2CA88AC233746DB77F3 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				8718EB72B359DBA5946EB911 /* main.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */
-		233B89AA21EA59220514A047 /* Release */ = {
+		15CEE9ED755891408EA34E92 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = B740D8ABFF5AA8EBA4D93B3A /* Pods-LibnfsTest.release.xcconfig */;
+			baseConfigurationReference = CAE97F72CC95E5C9B3CFA0C5 /* Pods-LibnfsTest.debug.xcconfig */;
 			buildSettings = {
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				MACOSX_DEPLOYMENT_TARGET = 10.15;
 				SDKROOT = macosx;
 			};
+			name = Debug;
+		};
+		1B898C763D75F001F0FA6254 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+			};
 			name = Release;
 		};
-		3FA306DDA7787FC4EFD5ED36 /* Debug */ = {
+		626F547DECA79350660760D6 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 8DFD23BF526DE091B566EA17 /* Pods-LibnfsTestiOS.debug.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.test.LibnfsTestiOS;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		76CB9F1E4BA2E54C833D7AB2 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -246,93 +417,66 @@
 			};
 			name = Debug;
 		};
-		69B87A742F1BE06B53CF6AC2 /* Debug */ = {
+		895F4FD999FBF40D6CE54BD7 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 0C85D81FA6B222BF4199B06F /* Pods-LibnfsTest.debug.xcconfig */;
+			baseConfigurationReference = 39F76A0259B9550C063E45A5 /* Pods-LibnfsTest.release.xcconfig */;
 			buildSettings = {
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				MACOSX_DEPLOYMENT_TARGET = 10.15;
 				SDKROOT = macosx;
 			};
-			name = Debug;
+			name = Release;
 		};
-		EFE4E65F465D2766FA87EDA3 /* Release */ = {
+		C8AFD40DA2FC3F0BA89FD800 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = A559F7FC9C8DD3FA63EBC9A7 /* Pods-LibnfsTestiOS.release.xcconfig */;
 			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				CLANG_ANALYZER_NONNULL = YES;
-				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
-				CLANG_CXX_LIBRARY = "libc++";
-				CLANG_ENABLE_MODULES = YES;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CLANG_ENABLE_OBJC_ARC = YES;
-				CLANG_ENABLE_OBJC_WEAK = YES;
-				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
-				CLANG_WARN_BOOL_CONVERSION = YES;
-				CLANG_WARN_COMMA = YES;
-				CLANG_WARN_CONSTANT_CONVERSION = YES;
-				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
-				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
-				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
-				CLANG_WARN_EMPTY_BODY = YES;
-				CLANG_WARN_ENUM_CONVERSION = YES;
-				CLANG_WARN_INFINITE_RECURSION = YES;
-				CLANG_WARN_INT_CONVERSION = YES;
-				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
-				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
-				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
-				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
-				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
-				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
-				CLANG_WARN_STRICT_PROTOTYPES = YES;
-				CLANG_WARN_SUSPICIOUS_MOVE = YES;
-				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				CLANG_WARN_UNREACHABLE_CODE = YES;
-				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				COPY_PHASE_STRIP = NO;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				ENABLE_NS_ASSERTIONS = NO;
-				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				GCC_C_LANGUAGE_STANDARD = gnu11;
-				GCC_NO_COMMON_BLOCKS = YES;
-				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
-				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
-				GCC_WARN_UNDECLARED_SELECTOR = YES;
-				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
-				GCC_WARN_UNUSED_FUNCTION = YES;
-				GCC_WARN_UNUSED_VARIABLE = YES;
-				MTL_ENABLE_DEBUG_INFO = NO;
-				MTL_FAST_MATH = YES;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_COMPILATION_MODE = wholemodule;
-				SWIFT_OPTIMIZATION_LEVEL = "-O";
-				SWIFT_VERSION = 5.0;
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.test.LibnfsTestiOS;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;
 		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		59B621609D56C0C87EC14240 /* Build configuration list for PBXNativeTarget "LibnfsTest" */ = {
+		2C080C52824EC59A9A16AA37 /* Build configuration list for PBXNativeTarget "LibnfsTestiOS" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				233B89AA21EA59220514A047 /* Release */,
-				69B87A742F1BE06B53CF6AC2 /* Debug */,
+				C8AFD40DA2FC3F0BA89FD800 /* Release */,
+				626F547DECA79350660760D6 /* Debug */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		6E38A2CBC081EB220115FFC2 /* Build configuration list for PBXProject "LibnfsTest" */ = {
+		C0166EFF673E3180E5EDACF3 /* Build configuration list for PBXNativeTarget "LibnfsTest" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				3FA306DDA7787FC4EFD5ED36 /* Debug */,
-				EFE4E65F465D2766FA87EDA3 /* Release */,
+				895F4FD999FBF40D6CE54BD7 /* Release */,
+				15CEE9ED755891408EA34E92 /* Debug */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		FDF723FB5F80A3F6FB637A2C /* Build configuration list for PBXProject "LibnfsTest" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				76CB9F1E4BA2E54C833D7AB2 /* Debug */,
+				1B898C763D75F001F0FA6254 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
-	rootObject = 43D56225728A2C1DBF6DC863 /* Project object */;
+	rootObject = D4C031946072A58DBCDB8653 /* Project object */;
 }

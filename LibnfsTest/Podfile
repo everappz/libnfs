@@ -3,3 +3,8 @@ platform :osx, '10.15'
 target 'LibnfsTest' do
   pod 'libnfs/ObjC', :path => '../'
 end
+
+target 'LibnfsTestiOS' do
+  platform :ios, '13.0'
+  pod 'libnfs/ObjC', :path => '../'
+end
