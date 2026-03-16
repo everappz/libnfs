@@ -25,8 +25,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithURL:(NSURL *)url;
 
 @property (nonatomic) NSTimeInterval timeout;
-@property (nonatomic, readonly) int32_t uid;
-@property (nonatomic, readonly) int32_t gid;
+@property (nonatomic) int32_t uid;
+@property (nonatomic) int32_t gid;
 
 #pragma mark - Connection
 

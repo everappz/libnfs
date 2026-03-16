@@ -25,6 +25,8 @@ FOUNDATION_EXTERN NSString *const LNFSErrorDomain;
 @interface LNFSContext : NSObject
 
 @property (nonatomic) NSTimeInterval timeout;
+@property (nonatomic) int32_t uid;
+@property (nonatomic) int32_t gid;
 
 - (BOOL)isConnected;
 

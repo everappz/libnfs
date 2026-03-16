@@ -48,8 +48,16 @@
     return _uid;
 }
 
+- (void)setUid:(int32_t)uid {
+    _uid = uid;
+}
+
 - (int32_t)gid {
     return _gid;
+}
+
+- (void)setGid:(int32_t)gid {
+    _gid = gid;
 }
 
 #pragma mark - Context management
@@ -59,6 +67,8 @@
     if (!ctx) {
         ctx = [[LNFSContext alloc] init];
         ctx.timeout = self.timeout;
+        ctx.uid = _uid;
+        ctx.gid = _gid;
         [_contexts setObject:ctx forKey:exportName];
     }
     return ctx;
