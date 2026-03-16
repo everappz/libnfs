@@ -1,0 +1,64 @@
+Pod::Spec.new do |s|
+  s.name         = 'libnfs'
+  s.version      = '16.2.0'
+  s.summary      = 'NFS client library'
+  s.description  = 'LIBNFS is a client library for accessing NFS shares over a network. '\
+                   'It supports NFSv3 and NFSv4, provides both synchronous and asynchronous APIs, '\
+                   'and implements MOUNT, NLM, NSM, portmap, and rquota protocols.'
+  s.homepage     = 'https://github.com/everappz/libnfs'
+  s.license      = { :type => 'LGPL-2.1+', :file => 'LICENCE-LGPL-2.1.txt' }
+  s.author       = { 'Ronnie Sahlberg' => 'ronniesahlberg@gmail.com' }
+  s.source       = { :git => 'https://github.com/everappz/libnfs.git', :tag => s.version.to_s }
+
+  s.ios.deployment_target = '13.0'
+  s.osx.deployment_target = '10.15'
+  s.tvos.deployment_target = '13.0'
+
+  s.source_files =
+    'apple-config/config.h',
+    'include/**/*.h',
+    'lib/*.{c,h}',
+    'mount/*.{c,h}',
+    'nfs/*.{c,h}',
+    'nfs4/*.{c,h}',
+    'nlm/*.{c,h}',
+    'nsm/*.{c,h}',
+    'portmap/*.{c,h}',
+    'rquota/*.{c,h}'
+
+  s.public_header_files =
+    'include/nfsc/libnfs.h',
+    'include/nfsc/libnfs-raw.h',
+    'include/nfsc/libnfs-zdr.h',
+    'mount/libnfs-raw-mount.h',
+    'nfs/libnfs-raw-nfs.h',
+    'nfs4/libnfs-raw-nfs4.h',
+    'nlm/libnfs-raw-nlm.h',
+    'nsm/libnfs-raw-nsm.h',
+    'portmap/libnfs-raw-portmap.h',
+    'rquota/libnfs-raw-rquota.h'
+
+  s.private_header_files =
+    'apple-config/config.h',
+    'include/libnfs-private.h',
+    'include/libnfs-multithreading.h',
+    'include/slist.h',
+    'lib/krb5-wrapper.h'
+
+  s.exclude_files =
+    'include/win32/**/*',
+    'lib/libnfs-win32.def'
+
+  s.header_dir = 'nfsc'
+
+  s.compiler_flags = '-Wno-shorten-64-to-32'
+
+  s.pod_target_xcconfig = {
+    'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}/apple-config" "${PODS_TARGET_SRCROOT}/include" "${PODS_TARGET_SRCROOT}/include/nfsc" "${PODS_TARGET_SRCROOT}/lib" "${PODS_TARGET_SRCROOT}/mount" "${PODS_TARGET_SRCROOT}/nfs" "${PODS_TARGET_SRCROOT}/nfs4" "${PODS_TARGET_SRCROOT}/nlm" "${PODS_TARGET_SRCROOT}/nsm" "${PODS_TARGET_SRCROOT}/portmap" "${PODS_TARGET_SRCROOT}/rquota"',
+    'GCC_PREPROCESSOR_DEFINITIONS' => 'HAVE_CONFIG_H=1 _U_=__attribute__((unused))',
+  }
+
+  s.preserve_paths = 'apple-config/**/*', 'cmake/**/*', 'COPYING', 'LICENCE-*.txt'
+  s.libraries = 'c'
+  s.requires_arc = false
+end

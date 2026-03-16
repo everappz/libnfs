@@ -1,0 +1,16 @@
+PODS:
+  - libnfs (16.2.0)
+
+DEPENDENCIES:
+  - libnfs (from `../`)
+
+EXTERNAL SOURCES:
+  libnfs:
+    :path: "../"
+
+SPEC CHECKSUMS:
+  libnfs: ec128d8fb190fc727f535a7194c57eab8b7389b1
+
+PODFILE CHECKSUM: 57d5332781b80f0a20f07fc1b93b42921c66e7de
+
+COCOAPODS: 1.16.2
