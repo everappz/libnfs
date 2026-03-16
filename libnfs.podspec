@@ -23,7 +23,6 @@ Pod::Spec.new do |s|
 
   s.subspec 'Core' do |core|
     core.source_files =
-      'apple-config/config.h',
       'include/**/*.h',
       'lib/*.{c,h}',
       'mount/*.{c,h}',
@@ -47,14 +46,14 @@ Pod::Spec.new do |s|
       'rquota/libnfs-raw-rquota.h'
 
     core.private_header_files =
-      'apple-config/config.h',
       'include/libnfs-private.h',
       'include/libnfs-multithreading.h',
-      'include/slist.h',
       'lib/krb5-wrapper.h'
 
     core.exclude_files =
       'include/win32/**/*',
+      'include/slist.h',
+      'apple-config/config.h',
       'lib/libnfs-win32.def'
 
     core.header_dir = 'nfsc'
@@ -65,6 +64,7 @@ Pod::Spec.new do |s|
       'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}/apple-config" "${PODS_TARGET_SRCROOT}/include" "${PODS_TARGET_SRCROOT}/include/nfsc" "${PODS_TARGET_SRCROOT}/lib" "${PODS_TARGET_SRCROOT}/mount" "${PODS_TARGET_SRCROOT}/nfs" "${PODS_TARGET_SRCROOT}/nfs4" "${PODS_TARGET_SRCROOT}/nlm" "${PODS_TARGET_SRCROOT}/nsm" "${PODS_TARGET_SRCROOT}/portmap" "${PODS_TARGET_SRCROOT}/rquota"',
       'GCC_PREPROCESSOR_DEFINITIONS' => 'HAVE_CONFIG_H=1 _U_=__attribute__((unused))',
       'CLANG_ENABLE_MODULES' => 'NO',
+      'USE_HEADERMAP' => 'NO',
     }
 
   end
