@@ -1,0 +1,8 @@
+framework module libnfs {
+  header "libnfs.h"
+  header "libnfs-zdr.h"
+  header "NFSClient.h"
+  header "NFSFileItem.h"
+
+  export *
+}
