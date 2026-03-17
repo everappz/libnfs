@@ -18,7 +18,7 @@
 #import "NFSClient.h"
 #import "NFSContext.h"
 #include <nfsc/libnfs.h>
-#include <nfsc/libnfs-raw-mount.h>
+#include "libnfs-raw-mount.h"
 
 @interface LNFSClient () {
     NSURL *_url;
