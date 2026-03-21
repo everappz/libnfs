@@ -64,6 +64,9 @@ static const size_t kDefaultChunkSize = 1048576; // 1 MB
 
 - (void)dealloc {
     if (_nfs) {
+        if (nfs_get_fd(_nfs) >= 0) {
+            nfs_umount(_nfs);
+        }
         nfs_destroy_context(_nfs);
         _nfs = NULL;
     }
@@ -72,6 +75,7 @@ static const size_t kDefaultChunkSize = 1048576; // 1 MB
 #pragma mark - Error helpers
 
 - (NSError *)errorWithCode:(int)code {
+    [_lock lock];
     NSString *message = nil;
     if (_nfs) {
         const char *err = nfs_get_error(_nfs);
@@ -79,6 +83,7 @@ static const size_t kDefaultChunkSize = 1048576; // 1 MB
             message = [NSString stringWithUTF8String:err];
         }
     }
+    [_lock unlock];
     if (!message) {
         message = [NSString stringWithFormat:@"NFS error %d", code];
     }
@@ -135,6 +140,9 @@ static const size_t kDefaultChunkSize = 1048576; // 1 MB
 - (BOOL)disconnectWithError:(NSError **)error {
     [_lock lock];
     if (_nfs) {
+        if (nfs_get_fd(_nfs) >= 0) {
+            nfs_umount(_nfs);
+        }
         nfs_destroy_context(_nfs);
         _nfs = NULL;
     }
@@ -489,6 +497,113 @@ static const size_t kDefaultChunkSize = 1048576; // 1 MB
     [_lock unlock];
 
     return result;
+}
+
+- (BOOL)readFileAtPath:(NSString *)path
+             toFileURL:(NSURL *)localURL
+              progress:(BOOL(^ _Nullable)(int64_t bytes, int64_t total))progress
+                 error:(NSError **)error
+{
+    [_lock lock];
+
+    if (!_nfs) {
+        [_lock unlock];
+        if (error) *error = [LNFSContext errorWithMessage:@"Not connected" code:-ENOTCONN];
+        return NO;
+    }
+
+    struct nfsfh *nfsfh = NULL;
+    int ret = nfs_open(_nfs, [path UTF8String], O_RDONLY, &nfsfh);
+    if (ret != 0) {
+        if (error) *error = [self errorWithCode:ret];
+        [_lock unlock];
+        return NO;
+    }
+
+    struct nfs_stat_64 st;
+    memset(&st, 0, sizeof(st));
+    ret = nfs_fstat64(_nfs, nfsfh, &st);
+    if (ret != 0) {
+        if (error) *error = [self errorWithCode:ret];
+        nfs_close(_nfs, nfsfh);
+        [_lock unlock];
+        return NO;
+    }
+
+    int64_t totalSize = (int64_t)st.nfs_size;
+
+    // Create/truncate local file
+    [[NSFileManager defaultManager] createFileAtPath:[localURL path]
+                                            contents:nil
+                                          attributes:nil];
+    NSError *localError = nil;
+    NSFileHandle *localFH = [NSFileHandle fileHandleForWritingToURL:localURL
+                                                              error:&localError];
+    if (!localFH) {
+        nfs_close(_nfs, nfsfh);
+        [_lock unlock];
+        if (error) *error = localError ?: [LNFSContext errorWithMessage:@"Failed to create local file" code:-EIO];
+        return NO;
+    }
+
+    size_t chunkSize = nfs_get_readmax(_nfs);
+    if (chunkSize == 0 || chunkSize > kDefaultChunkSize) {
+        chunkSize = kDefaultChunkSize;
+    }
+
+    int64_t bytesRead = 0;
+    uint64_t currentOffset = 0;
+    BOOL success = YES;
+
+    while (bytesRead < totalSize) {
+        size_t toRead = (size_t)(totalSize - bytesRead);
+        if (toRead > chunkSize) toRead = chunkSize;
+
+        uint8_t *buf = malloc(toRead);
+        if (!buf) {
+            if (error) *error = [LNFSContext errorWithMessage:@"Out of memory" code:-ENOMEM];
+            success = NO;
+            break;
+        }
+
+        int nread = nfs_pread(_nfs, nfsfh, buf, toRead, currentOffset);
+        if (nread < 0) {
+            free(buf);
+            if (error) *error = [self errorWithCode:nread];
+            success = NO;
+            break;
+        }
+
+        if (nread == 0) {
+            free(buf);
+            break; // EOF
+        }
+
+        [localFH writeData:[NSData dataWithBytesNoCopy:buf
+                                                length:(NSUInteger)nread
+                                          freeWhenDone:YES]];
+
+        bytesRead += nread;
+        currentOffset += (uint64_t)nread;
+
+        if (progress) {
+            if (!progress(bytesRead, totalSize)) {
+                if (error) *error = [LNFSContext errorWithMessage:@"Cancelled" code:-ECANCELED];
+                success = NO;
+                break;
+            }
+        }
+    }
+
+    nfs_close(_nfs, nfsfh);
+    [_lock unlock];
+    [localFH closeFile];
+
+    if (!success) {
+        [[NSFileManager defaultManager] removeItemAtURL:localURL error:nil];
+    }
+
+    return success;
 }
 
 // Fix bug #6: write actual data length, no padding

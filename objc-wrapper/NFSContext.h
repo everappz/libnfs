@@ -68,6 +68,12 @@ FOUNDATION_EXTERN NSString *const LNFSErrorDomain;
          progress:(BOOL(^ _Nullable)(int64_t bytes))progress
             error:(NSError **)error;
 
+// Streaming file I/O (avoids loading entire file into memory)
+- (BOOL)readFileAtPath:(NSString *)path
+             toFileURL:(NSURL *)localURL
+              progress:(BOOL(^ _Nullable)(int64_t bytes, int64_t total))progress
+                 error:(NSError **)error;
+
 @end
 
 NS_ASSUME_NONNULL_END

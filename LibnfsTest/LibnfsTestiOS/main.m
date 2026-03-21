@@ -7,7 +7,7 @@
 #ifdef RUN_SERVER_TESTS
 
 // Test server configuration
-static NSString *const kServerURL = @"nfs://192.168.18.149";
+static NSString *const kServerURL = @"nfs://192.168.1.131";
 static NSString *const kExport = @"/volume1/test";
 
 static int gPassed = 0;

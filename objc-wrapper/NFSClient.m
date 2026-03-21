@@ -23,6 +23,7 @@
 @interface LNFSClient () {
     NSURL *_url;
     NSMutableDictionary<NSString *, LNFSContext *> *_contexts;
+    NSString *_defaultExportName;
     dispatch_queue_t _queue;
     int32_t _uid;
     int32_t _gid;
@@ -91,6 +92,9 @@
             return;
         }
         [ctx connectToServer:server export:exportName error:&error];
+        if (!error) {
+            _defaultExportName = [exportName copy];
+        }
         completion(error);
     });
 }
@@ -108,6 +112,9 @@
         NSError *error = nil;
         [ctx disconnectWithError:&error];
         [_contexts removeObjectForKey:exportName];
+        if ([_defaultExportName isEqualToString:exportName]) {
+            _defaultExportName = nil;
+        }
         completion(error);
     });
 }
@@ -427,11 +434,16 @@
              completion:(void(^)(NSError *))completion
 {
     dispatch_async(_queue, ^{
-        NSData *data = [NSData dataWithContentsOfURL:url];
+        NSError *error = nil;
+        NSData *data = [NSData dataWithContentsOfURL:url
+                                             options:NSDataReadingMappedIfSafe
+                                               error:&error];
         if (!data) {
-            NSError *error = [NSError errorWithDomain:LNFSErrorDomain
-                                                 code:-EIO
-                                             userInfo:@{NSLocalizedDescriptionKey: @"Failed to read local file"}];
+            if (!error) {
+                error = [NSError errorWithDomain:LNFSErrorDomain
+                                             code:-EIO
+                                         userInfo:@{NSLocalizedDescriptionKey: @"Failed to read local file"}];
+            }
             completion(error);
             return;
         }
@@ -442,7 +454,6 @@
             return;
         }
 
-        NSError *error = nil;
         [ctx writeData:data toPath:path progress:progress error:&error];
         completion(error);
     });
@@ -461,24 +472,22 @@
         }
 
         NSError *error = nil;
-        NSData *data = [ctx readFileAtPath:path offset:0 length:0 progress:progress error:&error];
-        if (!data) {
-            completion(error);
-            return;
-        }
-
-        if (![data writeToURL:url options:NSDataWritingAtomic error:&error]) {
-            completion(error);
-            return;
-        }
-        completion(nil);
+        [ctx readFileAtPath:path toFileURL:url progress:progress error:&error];
+        completion(error);
     });
 }
 
 #pragma mark - Helpers
 
 - (LNFSContext *)connectedContextForPath:(NSString *)path {
-    // Return the first connected context. The client manages contexts per-export.
+    // Prefer the default (most recently connected) export
+    if (_defaultExportName) {
+        LNFSContext *ctx = [_contexts objectForKey:_defaultExportName];
+        if ([ctx isConnected]) {
+            return ctx;
+        }
+    }
+    // Fall back to any connected context
     for (NSString *key in _contexts) {
         LNFSContext *ctx = [_contexts objectForKey:key];
         if ([ctx isConnected]) {
