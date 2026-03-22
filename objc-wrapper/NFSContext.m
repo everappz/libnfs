@@ -109,6 +109,7 @@ static const size_t kDefaultChunkSize = 1048576; // 1 MB
 }
 
 - (BOOL)connectToServer:(NSString *)server
+                   port:(int)port
                  export:(NSString *)exportName
                   error:(NSError **)error
 {
@@ -126,6 +127,11 @@ static const size_t kDefaultChunkSize = 1048576; // 1 MB
     nfs_set_timeout(_nfs, (int)(self.timeout * 1000));
     nfs_set_uid(_nfs, self.uid);
     nfs_set_gid(_nfs, self.gid);
+
+    if (port > 0) {
+        nfs_set_nfsport(_nfs, port);
+        nfs_set_mountport(_nfs, port);
+    }
 
     int ret = nfs_mount(_nfs, [server UTF8String], [exportName UTF8String]);
     [_lock unlock];

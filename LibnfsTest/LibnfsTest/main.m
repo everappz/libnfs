@@ -7,7 +7,8 @@
 #ifdef RUN_SERVER_TESTS
 
 // Test server configuration
-static NSString *const kServerURL = @"nfs://192.168.18.149";
+static NSString *const kServerHost = @"192.168.1.131";
+static int const kServerPort = 0;
 static NSString *const kExport = @"/volume1/test";
 
 static int gPassed = 0;
@@ -55,13 +56,12 @@ static void waitForCompletionTimeout(int64_t seconds, void (^block)(dispatch_sem
 static void testClientInit(void) {
     GROUP(@"Client Initialization Tests");
 
-    NSURL *url = [NSURL URLWithString:kServerURL];
-    LNFSClient *client = [[LNFSClient alloc] initWithURL:url];
+    LNFSClient *client = [[LNFSClient alloc] initWithHost:kServerHost port:kServerPort];
 
     if (client) {
-        PASS(@"initWithURL");
+        PASS(@"initWithHost:port:");
     } else {
-        FAIL(@"initWithURL", @"returned nil");
+        FAIL(@"initWithHost:port:", @"returned nil");
     }
 
     client.timeout = 30.0;
@@ -1355,8 +1355,7 @@ int main(int argc, const char * argv[]) {
     @autoreleasepool {
         NSLog(@"libnfs pod installation test");
 
-        NSURL *url = [NSURL URLWithString:@"nfs://localhost"];
-        LNFSClient *client = [[LNFSClient alloc] initWithURL:url];
+        LNFSClient *client = [[LNFSClient alloc] initWithHost:@"localhost" port:0];
         if (!client) {
             NSLog(@"[FAIL] LNFSClient creation failed");
             return 1;
@@ -1381,7 +1380,7 @@ int main(int argc, const char * argv[]) {
 #ifdef RUN_SERVER_TESTS
         gSuiteStart = CFAbsoluteTimeGetCurrent();
         NSLog(@"=== libnfs ObjC Wrapper Test Suite ===");
-        NSLog(@"Server: %@", kServerURL);
+        NSLog(@"Server: %@:%d", kServerHost, kServerPort);
         NSLog(@"Export: %@", kExport);
         NSLog(@"");
 
@@ -1390,8 +1389,7 @@ int main(int argc, const char * argv[]) {
         testClientInit();
         testFileItemInit();
 
-        NSURL *serverURL = [NSURL URLWithString:kServerURL];
-        LNFSClient *serverClient = [[LNFSClient alloc] initWithURL:serverURL];
+        LNFSClient *serverClient = [[LNFSClient alloc] initWithHost:kServerHost port:kServerPort];
         serverClient.timeout = 30.0;
         serverClient.uid = 0;
         serverClient.gid = 0;

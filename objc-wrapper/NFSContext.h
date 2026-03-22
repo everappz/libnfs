@@ -32,6 +32,7 @@ FOUNDATION_EXTERN NSString *const LNFSErrorDomain;
 
 // Connection
 - (BOOL)connectToServer:(NSString *)server
+                   port:(int)port
                  export:(NSString *)exportName
                   error:(NSError **)error;
 - (BOOL)disconnectWithError:(NSError **)error;
