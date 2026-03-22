@@ -65,8 +65,12 @@
 #pragma mark - Context management
 
 - (LNFSContext *)contextForExport:(NSString *)exportName {
+    return [_contexts objectForKey:exportName];
+}
+
+- (LNFSContext *)contextForExport:(NSString *)exportName create:(BOOL)create {
     LNFSContext *ctx = [_contexts objectForKey:exportName];
-    if (!ctx) {
+    if (!ctx && create) {
         ctx = [[LNFSContext alloc] init];
         ctx.timeout = self.timeout;
         ctx.uid = _uid;
@@ -82,7 +86,7 @@
              completion:(void(^)(NSError *))completion
 {
     dispatch_async(_queue, ^{
-        LNFSContext *ctx = [self contextForExport:exportName];
+        LNFSContext *ctx = [self contextForExport:exportName create:YES];
         NSError *error = nil;
         [ctx connectToServer:_host port:_port export:exportName error:&error];
         completion(error);
