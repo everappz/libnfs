@@ -23,7 +23,8 @@
 @interface LNFSClient () {
     NSString *_host;
     int _port;
-    NSMutableDictionary<NSString *, LNFSContext *> *_contexts;
+    LNFSContext *_context;
+    NSString *_exportName;
     dispatch_queue_t _queue;
     int32_t _uid;
     int32_t _gid;
@@ -37,7 +38,6 @@
     if (self) {
         _host = [host copy];
         _port = port;
-        _contexts = [[NSMutableDictionary alloc] init];
         _queue = dispatch_queue_create("com.libnfs.client", DISPATCH_QUEUE_SERIAL);
         _timeout = 60.0;
         _uid = (int32_t)getuid();
@@ -62,22 +62,30 @@
     _gid = gid;
 }
 
-#pragma mark - Context management
-
-- (LNFSContext *)contextForExport:(NSString *)exportName {
-    return [_contexts objectForKey:exportName];
+- (BOOL)isConnected {
+    return [_context isConnected];
 }
 
-- (LNFSContext *)contextForExport:(NSString *)exportName create:(BOOL)create {
-    LNFSContext *ctx = [_contexts objectForKey:exportName];
-    if (!ctx && create) {
-        ctx = [[LNFSContext alloc] init];
-        ctx.timeout = self.timeout;
-        ctx.uid = _uid;
-        ctx.gid = _gid;
-        [_contexts setObject:ctx forKey:exportName];
-    }
+- (NSString *_Nullable)exportName {
+    return _exportName;
+}
+
+#pragma mark - Context management
+
+- (LNFSContext *)createContext {
+    LNFSContext *ctx = [[LNFSContext alloc] init];
+    ctx.timeout = self.timeout;
+    ctx.uid = _uid;
+    ctx.gid = _gid;
     return ctx;
+}
+
+- (LNFSContext *_Nullable)connectedContext {
+    LNFSContext *ctx = [self connectedContext];
+    if ([ctx isConnected]) {
+        return ctx;
+    }
+    return nil;
 }
 
 #pragma mark - Connection
@@ -86,38 +94,50 @@
              completion:(void(^)(NSError *))completion
 {
     dispatch_async(_queue, ^{
-        LNFSContext *ctx = [self contextForExport:exportName create:YES];
+        LNFSContext *ctx = [self createContext];
+
         NSError *error = nil;
         [ctx connectToServer:_host port:_port export:exportName error:&error];
+
+        if ([ctx isConnected]) {
+            _context = ctx;
+            _exportName = [exportName copy];
+        }
+
         completion(error);
     });
 }
 
-- (void)disconnectFromExport:(NSString *)exportName
-                  gracefully:(BOOL)gracefully
-                  completion:(void(^)(NSError *))completion
+- (void)disconnectFromExportGracefully:(BOOL)gracefully
+                            completion:(void(^)(NSError *))completion
 {
     dispatch_async(_queue, ^{
-        LNFSContext *ctx = [self contextForExport:exportName];
+        LNFSContext *ctx = [self connectedContext];
         if (!ctx) {
             completion(nil);
             return;
         }
+
         NSError *error = nil;
         [ctx disconnectWithError:&error];
-        [_contexts removeObjectForKey:exportName];
+
+        _context = nil;
+        _exportName = nil;
+
         completion(error);
     });
 }
 
 - (void)listExportsWithCompletion:(void(^)(NSArray<NSString *> *, NSError *))completion {
     dispatch_async(_queue, ^{
+
         struct exportnode *exports;
         if (_port > 0) {
             exports = mount_getexports_mountport([_host UTF8String], _port);
         } else {
             exports = mount_getexports([_host UTF8String]);
         }
+
         if (!exports) {
             NSError *error = [NSError errorWithDomain:LNFSErrorDomain
                                                  code:-EIO
@@ -144,11 +164,10 @@
 
 - (void)contentsOfDirectoryAtPath:(NSString *)path
                         recursive:(BOOL)recursive
-                       exportName:(NSString *)exportName
                        completion:(void(^)(NSArray<LNFSFileItem *> *, NSError *))completion
 {
     dispatch_async(_queue, ^{
-        LNFSContext *ctx = [self contextForExport:exportName];
+        LNFSContext *ctx = [self connectedContext];
         if (!ctx) {
             completion(nil, [self noContextError]);
             return;
@@ -196,28 +215,28 @@
 }
 
 - (void)createDirectoryAtPath:(NSString *)path
-                   exportName:(NSString *)exportName
                    completion:(void(^)(NSError *))completion
 {
     dispatch_async(_queue, ^{
-        LNFSContext *ctx = [self contextForExport:exportName];
+        LNFSContext *ctx = [self connectedContext];
         if (!ctx) {
             completion([self noContextError]);
             return;
         }
+
         NSError *error = nil;
         [ctx mkdirAtPath:path error:&error];
+
         completion(error);
     });
 }
 
 - (void)removeDirectoryAtPath:(NSString *)path
                     recursive:(BOOL)recursive
-                   exportName:(NSString *)exportName
                    completion:(void(^)(NSError *))completion
 {
     dispatch_async(_queue, ^{
-        LNFSContext *ctx = [self contextForExport:exportName];
+        LNFSContext *ctx = [self connectedContext];
         if (!ctx) {
             completion([self noContextError]);
             return;
@@ -229,6 +248,7 @@
         } else {
             [ctx rmdirAtPath:path error:&error];
         }
+
         completion(error);
     });
 }
@@ -251,55 +271,59 @@
             }
         }
     }
+
     return [ctx rmdirAtPath:path error:error];
 }
 
 #pragma mark - File attributes
 
 - (void)attributesOfItemAtPath:(NSString *)path
-                    exportName:(NSString *)exportName
                     completion:(void(^)(LNFSFileItem *, NSError *))completion
 {
     dispatch_async(_queue, ^{
-        LNFSContext *ctx = [self contextForExport:exportName];
+        LNFSContext *ctx = [self connectedContext];
         if (!ctx) {
             completion(nil, [self noContextError]);
             return;
         }
+
         NSError *error = nil;
         LNFSFileItem *item = [ctx statItemAtPath:path error:&error];
+
         completion(item, error);
     });
 }
 
 - (void)attributesOfFileSystemForPath:(NSString *)path
-                           exportName:(NSString *)exportName
                            completion:(void(^)(NSDictionary<NSFileAttributeKey,id> *, NSError *))completion
 {
     dispatch_async(_queue, ^{
-        LNFSContext *ctx = [self contextForExport:exportName];
+        LNFSContext *ctx = [self connectedContext];
         if (!ctx) {
             completion(nil, [self noContextError]);
             return;
         }
+
         NSError *error = nil;
         NSDictionary *attrs = [ctx statvfs64AtPath:path error:&error];
+
         completion(attrs, error);
     });
 }
 
 - (void)destinationOfSymbolicLinkAtPath:(NSString *)path
-                             exportName:(NSString *)exportName
                              completion:(void(^)(NSString *, NSError *))completion
 {
     dispatch_async(_queue, ^{
-        LNFSContext *ctx = [self contextForExport:exportName];
+        LNFSContext *ctx = [self connectedContext];
         if (!ctx) {
             completion(nil, [self noContextError]);
             return;
         }
+
         NSError *error = nil;
         NSString *dest = [ctx readlinkAtPath:path error:&error];
+
         completion(dest, error);
     });
 }
@@ -307,76 +331,83 @@
 #pragma mark - File operations
 
 - (void)removeFileAtPath:(NSString *)path
-              exportName:(NSString *)exportName
               completion:(void(^)(NSError *))completion
 {
     dispatch_async(_queue, ^{
-        LNFSContext *ctx = [self contextForExport:exportName];
+        LNFSContext *ctx = [self connectedContext];
         if (!ctx) {
             completion([self noContextError]);
             return;
         }
+
         NSError *error = nil;
         [ctx unlinkAtPath:path error:&error];
+
         completion(error);
     });
 }
 
 - (void)removeItemAtPath:(NSString *)path
-              exportName:(NSString *)exportName
               completion:(void(^)(NSError *))completion
 {
     dispatch_async(_queue, ^{
-        LNFSContext *ctx = [self contextForExport:exportName];
+        LNFSContext *ctx = [self connectedContext];
         if (!ctx) {
             completion([self noContextError]);
             return;
         }
+
         NSError *error = nil;
         LNFSFileItem *item = [ctx statItemAtPath:path error:&error];
         if (!item) {
             completion(error);
             return;
         }
+
         if (item.isDirectory) {
             [self recursivelyRemoveDirectoryAtPath:path context:ctx error:&error];
         } else {
             [ctx unlinkAtPath:path error:&error];
         }
+
         completion(error);
     });
 }
 
 - (void)moveItemAtPath:(NSString *)from
                 toPath:(NSString *)to
-            exportName:(NSString *)exportName
             completion:(void(^)(NSError *))completion
 {
     dispatch_async(_queue, ^{
-        LNFSContext *ctx = [self contextForExport:exportName];
+        LNFSContext *ctx = [self connectedContext];
+
         if (!ctx) {
             completion([self noContextError]);
             return;
         }
+
         NSError *error = nil;
         [ctx renameFrom:from to:to error:&error];
+
         completion(error);
     });
 }
 
 - (void)truncateFileAtPath:(NSString *)path
                   toOffset:(uint64_t)offset
-                exportName:(NSString *)exportName
                 completion:(void(^)(NSError *))completion
 {
     dispatch_async(_queue, ^{
-        LNFSContext *ctx = [self contextForExport:exportName];
+        LNFSContext *ctx = [self connectedContext];
+
         if (!ctx) {
             completion([self noContextError]);
             return;
         }
+
         NSError *error = nil;
         [ctx truncateAtPath:path offset:offset error:&error];
+
         completion(error);
     });
 }
@@ -384,53 +415,55 @@
 #pragma mark - Read / Write
 
 - (void)contentsAtPath:(NSString *)path
-            exportName:(NSString *)exportName
               progress:(BOOL(^ _Nullable)(int64_t, int64_t))progress
             completion:(void(^)(NSData *, NSError *))completion
 {
-    [self contentsAtPath:path offset:0 length:0 exportName:exportName progress:progress completion:completion];
+    [self contentsAtPath:path offset:0 length:0 progress:progress completion:completion];
 }
 
 - (void)contentsAtPath:(NSString *)path
                 offset:(int64_t)offset
                 length:(int64_t)length
-            exportName:(NSString *)exportName
               progress:(BOOL(^ _Nullable)(int64_t, int64_t))progress
             completion:(void(^)(NSData *, NSError *))completion
 {
     dispatch_async(_queue, ^{
-        LNFSContext *ctx = [self contextForExport:exportName];
+        LNFSContext *ctx = [self connectedContext];
+
         if (!ctx) {
             completion(nil, [self noContextError]);
             return;
         }
+
         NSError *error = nil;
         NSData *data = [ctx readFileAtPath:path offset:offset length:length progress:progress error:&error];
+
         completion(data, error);
     });
 }
 
 - (void)writeData:(NSData *)data
            toPath:(NSString *)path
-       exportName:(NSString *)exportName
          progress:(BOOL(^ _Nullable)(int64_t))progress
        completion:(void(^)(NSError *))completion
 {
     dispatch_async(_queue, ^{
-        LNFSContext *ctx = [self contextForExport:exportName];
+        LNFSContext *ctx = [self connectedContext];
+
         if (!ctx) {
             completion([self noContextError]);
             return;
         }
+
         NSError *error = nil;
         [ctx writeData:data toPath:path progress:progress error:&error];
+
         completion(error);
     });
 }
 
 - (void)uploadItemAtURL:(NSURL *)url
                  toPath:(NSString *)path
-             exportName:(NSString *)exportName
                progress:(BOOL(^ _Nullable)(int64_t))progress
              completion:(void(^)(NSError *))completion
 {
@@ -449,7 +482,7 @@
             return;
         }
 
-        LNFSContext *ctx = [self contextForExport:exportName];
+        LNFSContext *ctx = [self connectedContext];
         if (!ctx) {
             completion([self noContextError]);
             return;
@@ -462,12 +495,12 @@
 
 - (void)downloadItemAtPath:(NSString *)path
                      toURL:(NSURL *)url
-                exportName:(NSString *)exportName
                   progress:(BOOL(^ _Nullable)(int64_t, int64_t))progress
                 completion:(void(^)(NSError *))completion
 {
     dispatch_async(_queue, ^{
-        LNFSContext *ctx = [self contextForExport:exportName];
+        LNFSContext *ctx = [self connectedContext];
+
         if (!ctx) {
             completion([self noContextError]);
             return;
