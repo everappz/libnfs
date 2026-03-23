@@ -81,9 +81,8 @@
 }
 
 - (LNFSContext *_Nullable)connectedContext {
-    LNFSContext *ctx = [self connectedContext];
-    if ([ctx isConnected]) {
-        return ctx;
+    if ([_context isConnected]) {
+        return _context;
     }
     return nil;
 }
@@ -93,15 +92,22 @@
 - (void)connectToExport:(NSString *)exportName
              completion:(void(^)(NSError *))completion
 {
+    __weak typeof(self) weakSelf = self;
     dispatch_async(_queue, ^{
-        LNFSContext *ctx = [self createContext];
+        __strong typeof(weakSelf) strongSelf = weakSelf;
+        if (!strongSelf) {
+            completion([LNFSClient clientDeallocatedError]);
+            return;
+        }
+
+        LNFSContext *ctx = [strongSelf createContext];
 
         NSError *error = nil;
-        [ctx connectToServer:_host port:_port export:exportName error:&error];
+        [ctx connectToServer:strongSelf->_host port:strongSelf->_port export:exportName error:&error];
 
         if ([ctx isConnected]) {
-            _context = ctx;
-            _exportName = [exportName copy];
+            strongSelf->_context = ctx;
+            strongSelf->_exportName = [exportName copy];
         }
 
         completion(error);
@@ -111,8 +117,15 @@
 - (void)disconnectFromExportGracefully:(BOOL)gracefully
                             completion:(void(^)(NSError *))completion
 {
+    __weak typeof(self) weakSelf = self;
     dispatch_async(_queue, ^{
-        LNFSContext *ctx = [self connectedContext];
+        __strong typeof(weakSelf) strongSelf = weakSelf;
+        if (!strongSelf) {
+            completion(nil);
+            return;
+        }
+
+        LNFSContext *ctx = [strongSelf connectedContext];
         if (!ctx) {
             completion(nil);
             return;
@@ -121,21 +134,27 @@
         NSError *error = nil;
         [ctx disconnectWithError:&error];
 
-        _context = nil;
-        _exportName = nil;
+        strongSelf->_context = nil;
+        strongSelf->_exportName = nil;
 
         completion(error);
     });
 }
 
 - (void)listExportsWithCompletion:(void(^)(NSArray<NSString *> *, NSError *))completion {
+    __weak typeof(self) weakSelf = self;
     dispatch_async(_queue, ^{
+        __strong typeof(weakSelf) strongSelf = weakSelf;
+        if (!strongSelf) {
+            completion(nil, [LNFSClient clientDeallocatedError]);
+            return;
+        }
 
         struct exportnode *exports;
-        if (_port > 0) {
-            exports = mount_getexports_mountport([_host UTF8String], _port);
+        if (strongSelf->_port > 0) {
+            exports = mount_getexports_mountport([strongSelf->_host UTF8String], strongSelf->_port);
         } else {
-            exports = mount_getexports([_host UTF8String]);
+            exports = mount_getexports([strongSelf->_host UTF8String]);
         }
 
         if (!exports) {
@@ -166,10 +185,17 @@
                         recursive:(BOOL)recursive
                        completion:(void(^)(NSArray<LNFSFileItem *> *, NSError *))completion
 {
+    __weak typeof(self) weakSelf = self;
     dispatch_async(_queue, ^{
-        LNFSContext *ctx = [self connectedContext];
+        __strong typeof(weakSelf) strongSelf = weakSelf;
+        if (!strongSelf) {
+            completion(nil, [LNFSClient clientDeallocatedError]);
+            return;
+        }
+
+        LNFSContext *ctx = [strongSelf connectedContext];
         if (!ctx) {
-            completion(nil, [self noContextError]);
+            completion(nil, [LNFSClient noContextError]);
             return;
         }
 
@@ -186,9 +212,9 @@
                 if (item.isDirectory) {
                     NSArray *subItems = [ctx contentsOfDirectoryAtPath:item.path error:nil];
                     if (subItems) {
-                        [self recursivelyAddContents:subItems
-                                         fromContext:ctx
-                                             toArray:allItems];
+                        [strongSelf recursivelyAddContents:subItems
+                                               fromContext:ctx
+                                                   toArray:allItems];
                     }
                 }
             }
@@ -217,10 +243,17 @@
 - (void)createDirectoryAtPath:(NSString *)path
                    completion:(void(^)(NSError *))completion
 {
+    __weak typeof(self) weakSelf = self;
     dispatch_async(_queue, ^{
-        LNFSContext *ctx = [self connectedContext];
+        __strong typeof(weakSelf) strongSelf = weakSelf;
+        if (!strongSelf) {
+            completion([LNFSClient clientDeallocatedError]);
+            return;
+        }
+
+        LNFSContext *ctx = [strongSelf connectedContext];
         if (!ctx) {
-            completion([self noContextError]);
+            completion([LNFSClient noContextError]);
             return;
         }
 
@@ -235,16 +268,23 @@
                     recursive:(BOOL)recursive
                    completion:(void(^)(NSError *))completion
 {
+    __weak typeof(self) weakSelf = self;
     dispatch_async(_queue, ^{
-        LNFSContext *ctx = [self connectedContext];
+        __strong typeof(weakSelf) strongSelf = weakSelf;
+        if (!strongSelf) {
+            completion([LNFSClient clientDeallocatedError]);
+            return;
+        }
+
+        LNFSContext *ctx = [strongSelf connectedContext];
         if (!ctx) {
-            completion([self noContextError]);
+            completion([LNFSClient noContextError]);
             return;
         }
 
         NSError *error = nil;
         if (recursive) {
-            [self recursivelyRemoveDirectoryAtPath:path context:ctx error:&error];
+            [strongSelf recursivelyRemoveDirectoryAtPath:path context:ctx error:&error];
         } else {
             [ctx rmdirAtPath:path error:&error];
         }
@@ -280,10 +320,17 @@
 - (void)attributesOfItemAtPath:(NSString *)path
                     completion:(void(^)(LNFSFileItem *, NSError *))completion
 {
+    __weak typeof(self) weakSelf = self;
     dispatch_async(_queue, ^{
-        LNFSContext *ctx = [self connectedContext];
+        __strong typeof(weakSelf) strongSelf = weakSelf;
+        if (!strongSelf) {
+            completion(nil, [LNFSClient clientDeallocatedError]);
+            return;
+        }
+
+        LNFSContext *ctx = [strongSelf connectedContext];
         if (!ctx) {
-            completion(nil, [self noContextError]);
+            completion(nil, [LNFSClient noContextError]);
             return;
         }
 
@@ -297,10 +344,17 @@
 - (void)attributesOfFileSystemForPath:(NSString *)path
                            completion:(void(^)(NSDictionary<NSFileAttributeKey,id> *, NSError *))completion
 {
+    __weak typeof(self) weakSelf = self;
     dispatch_async(_queue, ^{
-        LNFSContext *ctx = [self connectedContext];
+        __strong typeof(weakSelf) strongSelf = weakSelf;
+        if (!strongSelf) {
+            completion(nil, [LNFSClient clientDeallocatedError]);
+            return;
+        }
+
+        LNFSContext *ctx = [strongSelf connectedContext];
         if (!ctx) {
-            completion(nil, [self noContextError]);
+            completion(nil, [LNFSClient noContextError]);
             return;
         }
 
@@ -314,10 +368,17 @@
 - (void)destinationOfSymbolicLinkAtPath:(NSString *)path
                              completion:(void(^)(NSString *, NSError *))completion
 {
+    __weak typeof(self) weakSelf = self;
     dispatch_async(_queue, ^{
-        LNFSContext *ctx = [self connectedContext];
+        __strong typeof(weakSelf) strongSelf = weakSelf;
+        if (!strongSelf) {
+            completion(nil, [LNFSClient clientDeallocatedError]);
+            return;
+        }
+
+        LNFSContext *ctx = [strongSelf connectedContext];
         if (!ctx) {
-            completion(nil, [self noContextError]);
+            completion(nil, [LNFSClient noContextError]);
             return;
         }
 
@@ -333,10 +394,17 @@
 - (void)removeFileAtPath:(NSString *)path
               completion:(void(^)(NSError *))completion
 {
+    __weak typeof(self) weakSelf = self;
     dispatch_async(_queue, ^{
-        LNFSContext *ctx = [self connectedContext];
+        __strong typeof(weakSelf) strongSelf = weakSelf;
+        if (!strongSelf) {
+            completion([LNFSClient clientDeallocatedError]);
+            return;
+        }
+
+        LNFSContext *ctx = [strongSelf connectedContext];
         if (!ctx) {
-            completion([self noContextError]);
+            completion([LNFSClient noContextError]);
             return;
         }
 
@@ -350,10 +418,17 @@
 - (void)removeItemAtPath:(NSString *)path
               completion:(void(^)(NSError *))completion
 {
+    __weak typeof(self) weakSelf = self;
     dispatch_async(_queue, ^{
-        LNFSContext *ctx = [self connectedContext];
+        __strong typeof(weakSelf) strongSelf = weakSelf;
+        if (!strongSelf) {
+            completion([LNFSClient clientDeallocatedError]);
+            return;
+        }
+
+        LNFSContext *ctx = [strongSelf connectedContext];
         if (!ctx) {
-            completion([self noContextError]);
+            completion([LNFSClient noContextError]);
             return;
         }
 
@@ -365,7 +440,7 @@
         }
 
         if (item.isDirectory) {
-            [self recursivelyRemoveDirectoryAtPath:path context:ctx error:&error];
+            [strongSelf recursivelyRemoveDirectoryAtPath:path context:ctx error:&error];
         } else {
             [ctx unlinkAtPath:path error:&error];
         }
@@ -378,11 +453,18 @@
                 toPath:(NSString *)to
             completion:(void(^)(NSError *))completion
 {
+    __weak typeof(self) weakSelf = self;
     dispatch_async(_queue, ^{
-        LNFSContext *ctx = [self connectedContext];
+        __strong typeof(weakSelf) strongSelf = weakSelf;
+        if (!strongSelf) {
+            completion([LNFSClient clientDeallocatedError]);
+            return;
+        }
+
+        LNFSContext *ctx = [strongSelf connectedContext];
 
         if (!ctx) {
-            completion([self noContextError]);
+            completion([LNFSClient noContextError]);
             return;
         }
 
@@ -397,11 +479,18 @@
                   toOffset:(uint64_t)offset
                 completion:(void(^)(NSError *))completion
 {
+    __weak typeof(self) weakSelf = self;
     dispatch_async(_queue, ^{
-        LNFSContext *ctx = [self connectedContext];
+        __strong typeof(weakSelf) strongSelf = weakSelf;
+        if (!strongSelf) {
+            completion([LNFSClient clientDeallocatedError]);
+            return;
+        }
+
+        LNFSContext *ctx = [strongSelf connectedContext];
 
         if (!ctx) {
-            completion([self noContextError]);
+            completion([LNFSClient noContextError]);
             return;
         }
 
@@ -427,11 +516,18 @@
               progress:(BOOL(^ _Nullable)(int64_t, int64_t))progress
             completion:(void(^)(NSData *, NSError *))completion
 {
+    __weak typeof(self) weakSelf = self;
     dispatch_async(_queue, ^{
-        LNFSContext *ctx = [self connectedContext];
+        __strong typeof(weakSelf) strongSelf = weakSelf;
+        if (!strongSelf) {
+            completion(nil, [LNFSClient clientDeallocatedError]);
+            return;
+        }
+
+        LNFSContext *ctx = [strongSelf connectedContext];
 
         if (!ctx) {
-            completion(nil, [self noContextError]);
+            completion(nil, [LNFSClient noContextError]);
             return;
         }
 
@@ -447,11 +543,18 @@
          progress:(BOOL(^ _Nullable)(int64_t))progress
        completion:(void(^)(NSError *))completion
 {
+    __weak typeof(self) weakSelf = self;
     dispatch_async(_queue, ^{
-        LNFSContext *ctx = [self connectedContext];
+        __strong typeof(weakSelf) strongSelf = weakSelf;
+        if (!strongSelf) {
+            completion([LNFSClient clientDeallocatedError]);
+            return;
+        }
+
+        LNFSContext *ctx = [strongSelf connectedContext];
 
         if (!ctx) {
-            completion([self noContextError]);
+            completion([LNFSClient noContextError]);
             return;
         }
 
@@ -467,6 +570,7 @@
                progress:(BOOL(^ _Nullable)(int64_t))progress
              completion:(void(^)(NSError *))completion
 {
+    __weak typeof(self) weakSelf = self;
     dispatch_async(_queue, ^{
         NSError *error = nil;
         NSData *data = [NSData dataWithContentsOfURL:url
@@ -482,9 +586,15 @@
             return;
         }
 
-        LNFSContext *ctx = [self connectedContext];
+        __strong typeof(weakSelf) strongSelf = weakSelf;
+        if (!strongSelf) {
+            completion([LNFSClient clientDeallocatedError]);
+            return;
+        }
+
+        LNFSContext *ctx = [strongSelf connectedContext];
         if (!ctx) {
-            completion([self noContextError]);
+            completion([LNFSClient noContextError]);
             return;
         }
 
@@ -498,11 +608,18 @@
                   progress:(BOOL(^ _Nullable)(int64_t, int64_t))progress
                 completion:(void(^)(NSError *))completion
 {
+    __weak typeof(self) weakSelf = self;
     dispatch_async(_queue, ^{
-        LNFSContext *ctx = [self connectedContext];
+        __strong typeof(weakSelf) strongSelf = weakSelf;
+        if (!strongSelf) {
+            completion([LNFSClient clientDeallocatedError]);
+            return;
+        }
+
+        LNFSContext *ctx = [strongSelf connectedContext];
 
         if (!ctx) {
-            completion([self noContextError]);
+            completion([LNFSClient noContextError]);
             return;
         }
 
@@ -514,10 +631,16 @@
 
 #pragma mark - Helpers
 
-- (NSError *)noContextError {
++ (NSError *)noContextError {
     return [NSError errorWithDomain:LNFSErrorDomain
                                code:-ENOTCONN
                            userInfo:@{NSLocalizedDescriptionKey: @"Not connected to any export"}];
+}
+
++ (NSError *)clientDeallocatedError {
+    return [NSError errorWithDomain:LNFSErrorDomain
+                               code:-ENOTCONN
+                           userInfo:@{NSLocalizedDescriptionKey: @"Client was deallocated"}];
 }
 
 @end
