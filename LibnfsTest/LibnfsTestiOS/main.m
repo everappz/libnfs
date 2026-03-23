@@ -1,3 +1,34 @@
+/*
+ main.m
+
+ Created by Artem Meleshko on 2026-03-23.
+
+ MIT License
+
+ Copyright (c) 2026 Artem Meleshko
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights
+ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ copies of the Software, and to permit persons to whom the Software is
+ furnished to do so, subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in all
+ copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ SOFTWARE.
+
+ While NFSClient source code shipped with project is MIT licensed,
+ but libnfs which is LGPL v2.1.
+ */
+
 #import <Foundation/Foundation.h>
 #import "NFSClient.h"
 #import "NFSFileItem.h"
@@ -7,9 +38,11 @@
 #ifdef RUN_SERVER_TESTS
 
 // Test server configuration
-static NSString *const kServerHost = @"192.168.1.131";
+//static NSString *const kServerHost = @"192.168.1.131"; // DSM 220J Home
+static NSString *const kServerHost = @"192.168.18.94"; // TS 133 Office
 static int const kServerPort = 0;
-static NSString *const kExport = @"/volume1/test";
+//static NSString *const kExport = @"/volume1/test"; DSM 220J Home
+static NSString *const kExport = @"/Public"; // TS 133 Office
 
 static int gPassed = 0;
 static int gFailed = 0;
@@ -164,7 +197,7 @@ static void testDirectoryOperations(LNFSClient *client, NSString *testDir) {
     // mkdir
     __block NSError *mkdirError = nil;
     waitForCompletion(^(dispatch_semaphore_t sem) {
-        [client createDirectoryAtPath:testDir exportName:kExport completion:^(NSError *error) {
+        [client createDirectoryAtPath:testDir completion:^(NSError *error) {
             mkdirError = error;
             dispatch_semaphore_signal(sem);
         }];
@@ -179,7 +212,7 @@ static void testDirectoryOperations(LNFSClient *client, NSString *testDir) {
     __block LNFSFileItem *dirItem = nil;
     __block NSError *statError = nil;
     waitForCompletion(^(dispatch_semaphore_t sem) {
-        [client attributesOfItemAtPath:testDir exportName:kExport completion:^(LNFSFileItem *item, NSError *error) {
+        [client attributesOfItemAtPath:testDir completion:^(LNFSFileItem *item, NSError *error) {
             dirItem = item;
             statError = error;
             dispatch_semaphore_signal(sem);
@@ -197,7 +230,7 @@ static void testDirectoryOperations(LNFSClient *client, NSString *testDir) {
     NSString *subDir = [testDir stringByAppendingPathComponent:@"subdir"];
     __block NSError *subMkdirError = nil;
     waitForCompletion(^(dispatch_semaphore_t sem) {
-        [client createDirectoryAtPath:subDir exportName:kExport completion:^(NSError *error) {
+        [client createDirectoryAtPath:subDir completion:^(NSError *error) {
             subMkdirError = error;
             dispatch_semaphore_signal(sem);
         }];
@@ -212,7 +245,7 @@ static void testDirectoryOperations(LNFSClient *client, NSString *testDir) {
     __block NSArray<LNFSFileItem *> *items = nil;
     __block NSError *lsError = nil;
     waitForCompletion(^(dispatch_semaphore_t sem) {
-        [client contentsOfDirectoryAtPath:testDir recursive:NO exportName:kExport completion:^(NSArray<LNFSFileItem *> *result, NSError *error) {
+        [client contentsOfDirectoryAtPath:testDir recursive:NO completion:^(NSArray<LNFSFileItem *> *result, NSError *error) {
             items = result;
             lsError = error;
             dispatch_semaphore_signal(sem);
@@ -240,7 +273,7 @@ static void testDirectoryOperations(LNFSClient *client, NSString *testDir) {
     // Remove subdirectory (non-recursive)
     __block NSError *rmdirError = nil;
     waitForCompletion(^(dispatch_semaphore_t sem) {
-        [client removeDirectoryAtPath:subDir recursive:NO exportName:kExport completion:^(NSError *error) {
+        [client removeDirectoryAtPath:subDir recursive:NO completion:^(NSError *error) {
             rmdirError = error;
             dispatch_semaphore_signal(sem);
         }];
@@ -255,7 +288,7 @@ static void testDirectoryOperations(LNFSClient *client, NSString *testDir) {
     __block NSError *statGoneError = nil;
     __block LNFSFileItem *goneItem = nil;
     waitForCompletion(^(dispatch_semaphore_t sem) {
-        [client attributesOfItemAtPath:subDir exportName:kExport completion:^(LNFSFileItem *item, NSError *error) {
+        [client attributesOfItemAtPath:subDir completion:^(LNFSFileItem *item, NSError *error) {
             goneItem = item;
             statGoneError = error;
             dispatch_semaphore_signal(sem);
@@ -280,7 +313,7 @@ static void testFileWriteAndRead(LNFSClient *client, NSString *testDir) {
     __block NSError *writeError = nil;
     __block int64_t writtenBytes = 0;
     waitForCompletion(^(dispatch_semaphore_t sem) {
-        [client writeData:testData toPath:filePath exportName:kExport progress:^BOOL(int64_t bytes) {
+        [client writeData:testData toPath:filePath progress:^BOOL(int64_t bytes) {
             writtenBytes = bytes;
             return YES;
         } completion:^(NSError *error) {
@@ -306,7 +339,7 @@ static void testFileWriteAndRead(LNFSClient *client, NSString *testDir) {
     __block NSData *readData = nil;
     __block NSError *readError = nil;
     waitForCompletion(^(dispatch_semaphore_t sem) {
-        [client contentsAtPath:filePath exportName:kExport progress:^BOOL(int64_t bytes, int64_t total) {
+        [client contentsAtPath:filePath progress:^BOOL(int64_t bytes, int64_t total) {
             return YES;
         } completion:^(NSData *data, NSError *error) {
             readData = data;
@@ -332,7 +365,7 @@ static void testFileWriteAndRead(LNFSClient *client, NSString *testDir) {
     int64_t readOffset = 6; // skip "Hello "
     int64_t readLength = 4; // read "from"
     waitForCompletion(^(dispatch_semaphore_t sem) {
-        [client contentsAtPath:filePath offset:readOffset length:readLength exportName:kExport progress:nil
+        [client contentsAtPath:filePath offset:readOffset length:readLength progress:nil
                     completion:^(NSData *data, NSError *error) {
             partialData = data;
             partialError = error;
@@ -364,7 +397,7 @@ static void testStatOperations(LNFSClient *client, NSString *testDir) {
     __block LNFSFileItem *fileItem = nil;
     __block NSError *statError = nil;
     waitForCompletion(^(dispatch_semaphore_t sem) {
-        [client attributesOfItemAtPath:filePath exportName:kExport completion:^(LNFSFileItem *item, NSError *error) {
+        [client attributesOfItemAtPath:filePath completion:^(LNFSFileItem *item, NSError *error) {
             fileItem = item;
             statError = error;
             dispatch_semaphore_signal(sem);
@@ -454,7 +487,7 @@ static void testStatOperations(LNFSClient *client, NSString *testDir) {
     __block LNFSFileItem *rootItem = nil;
     __block NSError *rootStatError = nil;
     waitForCompletion(^(dispatch_semaphore_t sem) {
-        [client attributesOfItemAtPath:@"/" exportName:kExport completion:^(LNFSFileItem *item, NSError *error) {
+        [client attributesOfItemAtPath:@"/" completion:^(LNFSFileItem *item, NSError *error) {
             rootItem = item;
             rootStatError = error;
             dispatch_semaphore_signal(sem);
@@ -476,7 +509,7 @@ static void testStatvfs(LNFSClient *client) {
     __block NSDictionary *attrs = nil;
     __block NSError *error = nil;
     waitForCompletion(^(dispatch_semaphore_t sem) {
-        [client attributesOfFileSystemForPath:@"/" exportName:kExport completion:^(NSDictionary<NSFileAttributeKey,id> *result, NSError *err) {
+        [client attributesOfFileSystemForPath:@"/" completion:^(NSDictionary<NSFileAttributeKey,id> *result, NSError *err) {
             attrs = result;
             error = err;
             dispatch_semaphore_signal(sem);
@@ -531,7 +564,7 @@ static void testTruncate(LNFSClient *client, NSString *testDir) {
     NSData *data = [@"Hello, World! This is a truncate test." dataUsingEncoding:NSUTF8StringEncoding];
     __block NSError *writeError = nil;
     waitForCompletion(^(dispatch_semaphore_t sem) {
-        [client writeData:data toPath:filePath exportName:kExport progress:nil completion:^(NSError *error) {
+        [client writeData:data toPath:filePath progress:nil completion:^(NSError *error) {
             writeError = error;
             dispatch_semaphore_signal(sem);
         }];
@@ -544,7 +577,7 @@ static void testTruncate(LNFSClient *client, NSString *testDir) {
     // Truncate to 5 bytes
     __block NSError *truncError = nil;
     waitForCompletion(^(dispatch_semaphore_t sem) {
-        [client truncateFileAtPath:filePath toOffset:5 exportName:kExport completion:^(NSError *error) {
+        [client truncateFileAtPath:filePath toOffset:5 completion:^(NSError *error) {
             truncError = error;
             dispatch_semaphore_signal(sem);
         }];
@@ -559,7 +592,7 @@ static void testTruncate(LNFSClient *client, NSString *testDir) {
     __block LNFSFileItem *item = nil;
     __block NSError *statError = nil;
     waitForCompletion(^(dispatch_semaphore_t sem) {
-        [client attributesOfItemAtPath:filePath exportName:kExport completion:^(LNFSFileItem *result, NSError *error) {
+        [client attributesOfItemAtPath:filePath completion:^(LNFSFileItem *result, NSError *error) {
             item = result;
             statError = error;
             dispatch_semaphore_signal(sem);
@@ -578,7 +611,7 @@ static void testTruncate(LNFSClient *client, NSString *testDir) {
     __block NSData *readData = nil;
     __block NSError *readError = nil;
     waitForCompletion(^(dispatch_semaphore_t sem) {
-        [client contentsAtPath:filePath exportName:kExport progress:nil completion:^(NSData *data, NSError *error) {
+        [client contentsAtPath:filePath progress:nil completion:^(NSData *data, NSError *error) {
             readData = data;
             readError = error;
             dispatch_semaphore_signal(sem);
@@ -598,7 +631,7 @@ static void testTruncate(LNFSClient *client, NSString *testDir) {
 
     // Cleanup
     waitForCompletion(^(dispatch_semaphore_t sem) {
-        [client removeFileAtPath:filePath exportName:kExport completion:^(NSError *error) {
+        [client removeFileAtPath:filePath completion:^(NSError *error) {
             dispatch_semaphore_signal(sem);
         }];
     });
@@ -616,7 +649,7 @@ static void testRename(LNFSClient *client, NSString *testDir) {
     // Create file
     __block NSError *writeError = nil;
     waitForCompletion(^(dispatch_semaphore_t sem) {
-        [client writeData:data toPath:origPath exportName:kExport progress:nil completion:^(NSError *error) {
+        [client writeData:data toPath:origPath progress:nil completion:^(NSError *error) {
             writeError = error;
             dispatch_semaphore_signal(sem);
         }];
@@ -629,7 +662,7 @@ static void testRename(LNFSClient *client, NSString *testDir) {
     // Rename
     __block NSError *renameError = nil;
     waitForCompletion(^(dispatch_semaphore_t sem) {
-        [client moveItemAtPath:origPath toPath:newPath exportName:kExport completion:^(NSError *error) {
+        [client moveItemAtPath:origPath toPath:newPath completion:^(NSError *error) {
             renameError = error;
             dispatch_semaphore_signal(sem);
         }];
@@ -643,7 +676,7 @@ static void testRename(LNFSClient *client, NSString *testDir) {
     // Verify old path is gone
     __block NSError *statOldError = nil;
     waitForCompletion(^(dispatch_semaphore_t sem) {
-        [client attributesOfItemAtPath:origPath exportName:kExport completion:^(LNFSFileItem *item, NSError *error) {
+        [client attributesOfItemAtPath:origPath completion:^(LNFSFileItem *item, NSError *error) {
             statOldError = error;
             dispatch_semaphore_signal(sem);
         }];
@@ -658,7 +691,7 @@ static void testRename(LNFSClient *client, NSString *testDir) {
     __block NSData *readData = nil;
     __block NSError *readError = nil;
     waitForCompletion(^(dispatch_semaphore_t sem) {
-        [client contentsAtPath:newPath exportName:kExport progress:nil completion:^(NSData *data, NSError *error) {
+        [client contentsAtPath:newPath progress:nil completion:^(NSData *data, NSError *error) {
             readData = data;
             readError = error;
             dispatch_semaphore_signal(sem);
@@ -678,7 +711,7 @@ static void testRename(LNFSClient *client, NSString *testDir) {
 
     // Cleanup
     waitForCompletion(^(dispatch_semaphore_t sem) {
-        [client removeFileAtPath:newPath exportName:kExport completion:^(NSError *error) {
+        [client removeFileAtPath:newPath completion:^(NSError *error) {
             dispatch_semaphore_signal(sem);
         }];
     });
@@ -694,7 +727,7 @@ static void testUnlink(LNFSClient *client, NSString *testDir) {
     // Create file
     __block NSError *writeError = nil;
     waitForCompletion(^(dispatch_semaphore_t sem) {
-        [client writeData:data toPath:filePath exportName:kExport progress:nil completion:^(NSError *error) {
+        [client writeData:data toPath:filePath progress:nil completion:^(NSError *error) {
             writeError = error;
             dispatch_semaphore_signal(sem);
         }];
@@ -707,7 +740,7 @@ static void testUnlink(LNFSClient *client, NSString *testDir) {
     // Remove file
     __block NSError *removeError = nil;
     waitForCompletion(^(dispatch_semaphore_t sem) {
-        [client removeFileAtPath:filePath exportName:kExport completion:^(NSError *error) {
+        [client removeFileAtPath:filePath completion:^(NSError *error) {
             removeError = error;
             dispatch_semaphore_signal(sem);
         }];
@@ -721,7 +754,7 @@ static void testUnlink(LNFSClient *client, NSString *testDir) {
     // Verify gone
     __block NSError *statError = nil;
     waitForCompletion(^(dispatch_semaphore_t sem) {
-        [client attributesOfItemAtPath:filePath exportName:kExport completion:^(LNFSFileItem *item, NSError *error) {
+        [client attributesOfItemAtPath:filePath completion:^(LNFSFileItem *item, NSError *error) {
             statError = error;
             dispatch_semaphore_signal(sem);
         }];
@@ -743,7 +776,7 @@ static void testRemoveItem(LNFSClient *client, NSString *testDir) {
 
     __block NSError *writeError = nil;
     waitForCompletion(^(dispatch_semaphore_t sem) {
-        [client writeData:data toPath:filePath exportName:kExport progress:nil completion:^(NSError *error) {
+        [client writeData:data toPath:filePath progress:nil completion:^(NSError *error) {
             writeError = error;
             dispatch_semaphore_signal(sem);
         }];
@@ -755,7 +788,7 @@ static void testRemoveItem(LNFSClient *client, NSString *testDir) {
 
     __block NSError *removeError = nil;
     waitForCompletion(^(dispatch_semaphore_t sem) {
-        [client removeItemAtPath:filePath exportName:kExport completion:^(NSError *error) {
+        [client removeItemAtPath:filePath completion:^(NSError *error) {
             removeError = error;
             dispatch_semaphore_signal(sem);
         }];
@@ -771,19 +804,19 @@ static void testRemoveItem(LNFSClient *client, NSString *testDir) {
     NSString *innerFile = [dirPath stringByAppendingPathComponent:@"inner.txt"];
 
     waitForCompletion(^(dispatch_semaphore_t sem) {
-        [client createDirectoryAtPath:dirPath exportName:kExport completion:^(NSError *error) {
+        [client createDirectoryAtPath:dirPath completion:^(NSError *error) {
             dispatch_semaphore_signal(sem);
         }];
     });
     waitForCompletion(^(dispatch_semaphore_t sem) {
-        [client writeData:data toPath:innerFile exportName:kExport progress:nil completion:^(NSError *error) {
+        [client writeData:data toPath:innerFile progress:nil completion:^(NSError *error) {
             dispatch_semaphore_signal(sem);
         }];
     });
 
     __block NSError *removeDirError = nil;
     waitForCompletion(^(dispatch_semaphore_t sem) {
-        [client removeItemAtPath:dirPath exportName:kExport completion:^(NSError *error) {
+        [client removeItemAtPath:dirPath completion:^(NSError *error) {
             removeDirError = error;
             dispatch_semaphore_signal(sem);
         }];
@@ -806,29 +839,29 @@ static void testRecursiveDirectory(LNFSClient *client, NSString *testDir) {
 
     // Create structure
     waitForCompletion(^(dispatch_semaphore_t sem) {
-        [client createDirectoryAtPath:recursiveDir exportName:kExport completion:^(NSError *error) {
+        [client createDirectoryAtPath:recursiveDir completion:^(NSError *error) {
             dispatch_semaphore_signal(sem);
         }];
     });
     waitForCompletion(^(dispatch_semaphore_t sem) {
-        [client createDirectoryAtPath:sub1 exportName:kExport completion:^(NSError *error) {
+        [client createDirectoryAtPath:sub1 completion:^(NSError *error) {
             dispatch_semaphore_signal(sem);
         }];
     });
     waitForCompletion(^(dispatch_semaphore_t sem) {
-        [client createDirectoryAtPath:sub2 exportName:kExport completion:^(NSError *error) {
+        [client createDirectoryAtPath:sub2 completion:^(NSError *error) {
             dispatch_semaphore_signal(sem);
         }];
     });
     waitForCompletion(^(dispatch_semaphore_t sem) {
         [client writeData:data toPath:[sub1 stringByAppendingPathComponent:@"file1.txt"]
-              exportName:kExport progress:nil completion:^(NSError *error) {
+             progress:nil completion:^(NSError *error) {
             dispatch_semaphore_signal(sem);
         }];
     });
     waitForCompletion(^(dispatch_semaphore_t sem) {
         [client writeData:data toPath:[sub2 stringByAppendingPathComponent:@"file2.txt"]
-              exportName:kExport progress:nil completion:^(NSError *error) {
+             progress:nil completion:^(NSError *error) {
             dispatch_semaphore_signal(sem);
         }];
     });
@@ -838,7 +871,7 @@ static void testRecursiveDirectory(LNFSClient *client, NSString *testDir) {
     __block NSError *lsError = nil;
     waitForCompletion(^(dispatch_semaphore_t sem) {
         [client contentsOfDirectoryAtPath:recursiveDir recursive:YES
-                              exportName:kExport completion:^(NSArray<LNFSFileItem *> *items, NSError *error) {
+                             completion:^(NSArray<LNFSFileItem *> *items, NSError *error) {
             allItems = items;
             lsError = error;
             dispatch_semaphore_signal(sem);
@@ -861,7 +894,7 @@ static void testRecursiveDirectory(LNFSClient *client, NSString *testDir) {
     // Test recursive directory removal
     __block NSError *rmError = nil;
     waitForCompletion(^(dispatch_semaphore_t sem) {
-        [client removeDirectoryAtPath:recursiveDir recursive:YES exportName:kExport completion:^(NSError *error) {
+        [client removeDirectoryAtPath:recursiveDir recursive:YES completion:^(NSError *error) {
             rmError = error;
             dispatch_semaphore_signal(sem);
         }];
@@ -875,7 +908,7 @@ static void testRecursiveDirectory(LNFSClient *client, NSString *testDir) {
     // Verify gone
     __block NSError *verifyError = nil;
     waitForCompletion(^(dispatch_semaphore_t sem) {
-        [client attributesOfItemAtPath:recursiveDir exportName:kExport completion:^(LNFSFileItem *item, NSError *error) {
+        [client attributesOfItemAtPath:recursiveDir completion:^(LNFSFileItem *item, NSError *error) {
             verifyError = error;
             dispatch_semaphore_signal(sem);
         }];
@@ -902,7 +935,7 @@ static void testLargeFileReadWrite(LNFSClient *client, NSString *testDir) {
     __block NSError *writeError = nil;
     __block BOOL progressCalled = NO;
     waitForCompletion(^(dispatch_semaphore_t sem) {
-        [client writeData:originalData toPath:filePath exportName:kExport progress:^BOOL(int64_t bytes) {
+        [client writeData:originalData toPath:filePath progress:^BOOL(int64_t bytes) {
             progressCalled = YES;
             return YES;
         } completion:^(NSError *error) {
@@ -926,7 +959,7 @@ static void testLargeFileReadWrite(LNFSClient *client, NSString *testDir) {
     __block NSError *readError = nil;
     __block BOOL readProgressCalled = NO;
     waitForCompletion(^(dispatch_semaphore_t sem) {
-        [client contentsAtPath:filePath exportName:kExport progress:^BOOL(int64_t bytes, int64_t total) {
+        [client contentsAtPath:filePath progress:^BOOL(int64_t bytes, int64_t total) {
             readProgressCalled = YES;
             return YES;
         } completion:^(NSData *data, NSError *error) {
@@ -953,7 +986,7 @@ static void testLargeFileReadWrite(LNFSClient *client, NSString *testDir) {
     // Verify stat size
     __block LNFSFileItem *item = nil;
     waitForCompletion(^(dispatch_semaphore_t sem) {
-        [client attributesOfItemAtPath:filePath exportName:kExport completion:^(LNFSFileItem *result, NSError *error) {
+        [client attributesOfItemAtPath:filePath completion:^(LNFSFileItem *result, NSError *error) {
             item = result;
             dispatch_semaphore_signal(sem);
         }];
@@ -968,7 +1001,7 @@ static void testLargeFileReadWrite(LNFSClient *client, NSString *testDir) {
 
     // Cleanup
     waitForCompletion(^(dispatch_semaphore_t sem) {
-        [client removeFileAtPath:filePath exportName:kExport completion:^(NSError *error) {
+        [client removeFileAtPath:filePath completion:^(NSError *error) {
             dispatch_semaphore_signal(sem);
         }];
     });
@@ -993,7 +1026,6 @@ static void testUploadDownload(LNFSClient *client, NSString *testDir) {
     waitForCompletion(^(dispatch_semaphore_t sem) {
         [client uploadItemAtURL:[NSURL fileURLWithPath:localUploadPath]
                          toPath:remotePath
-                     exportName:kExport
                        progress:nil
                      completion:^(NSError *error) {
             uploadError = error;
@@ -1014,7 +1046,6 @@ static void testUploadDownload(LNFSClient *client, NSString *testDir) {
     waitForCompletion(^(dispatch_semaphore_t sem) {
         [client downloadItemAtPath:remotePath
                              toURL:[NSURL fileURLWithPath:localDownloadPath]
-                        exportName:kExport
                           progress:nil
                         completion:^(NSError *error) {
             downloadError = error;
@@ -1039,7 +1070,7 @@ static void testUploadDownload(LNFSClient *client, NSString *testDir) {
     [[NSFileManager defaultManager] removeItemAtPath:localUploadPath error:nil];
     [[NSFileManager defaultManager] removeItemAtPath:localDownloadPath error:nil];
     waitForCompletion(^(dispatch_semaphore_t sem) {
-        [client removeFileAtPath:remotePath exportName:kExport completion:^(NSError *error) {
+        [client removeFileAtPath:remotePath completion:^(NSError *error) {
             dispatch_semaphore_signal(sem);
         }];
     });
@@ -1066,7 +1097,6 @@ static void testLargeUploadDownload(LNFSClient *client, NSString *testDir) {
     waitForCompletionTimeout(300, ^(dispatch_semaphore_t sem) {
         [client uploadItemAtURL:[NSURL fileURLWithPath:localUploadPath]
                          toPath:remotePath
-                     exportName:kExport
                        progress:^BOOL(int64_t bytes) {
             uploadLastBytes = bytes;
             return YES;
@@ -1091,7 +1121,7 @@ static void testLargeUploadDownload(LNFSClient *client, NSString *testDir) {
     // Verify remote size
     __block LNFSFileItem *remoteItem = nil;
     waitForCompletion(^(dispatch_semaphore_t sem) {
-        [client attributesOfItemAtPath:remotePath exportName:kExport completion:^(LNFSFileItem *item, NSError *error) {
+        [client attributesOfItemAtPath:remotePath completion:^(LNFSFileItem *item, NSError *error) {
             remoteItem = item;
             dispatch_semaphore_signal(sem);
         }];
@@ -1113,7 +1143,6 @@ static void testLargeUploadDownload(LNFSClient *client, NSString *testDir) {
     waitForCompletionTimeout(300, ^(dispatch_semaphore_t sem) {
         [client downloadItemAtPath:remotePath
                              toURL:[NSURL fileURLWithPath:localDownloadPath]
-                        exportName:kExport
                           progress:^BOOL(int64_t bytes, int64_t total) {
             downloadLastBytes = bytes;
             downloadTotal = total;
@@ -1152,7 +1181,7 @@ static void testLargeUploadDownload(LNFSClient *client, NSString *testDir) {
     [[NSFileManager defaultManager] removeItemAtPath:localUploadPath error:nil];
     [[NSFileManager defaultManager] removeItemAtPath:localDownloadPath error:nil];
     waitForCompletionTimeout(60, ^(dispatch_semaphore_t sem) {
-        [client removeFileAtPath:remotePath exportName:kExport completion:^(NSError *error) {
+        [client removeFileAtPath:remotePath completion:^(NSError *error) {
             dispatch_semaphore_signal(sem);
         }];
     });
@@ -1165,7 +1194,7 @@ static void testDisconnectAndReconnect(LNFSClient *client) {
     // Disconnect
     __block NSError *disconnectError = nil;
     waitForCompletion(^(dispatch_semaphore_t sem) {
-        [client disconnectFromExport:kExport gracefully:YES completion:^(NSError *error) {
+        [client disconnectFromExportGracefully:YES completion:^(NSError *error) {
             disconnectError = error;
             dispatch_semaphore_signal(sem);
         }];
@@ -1180,7 +1209,7 @@ static void testDisconnectAndReconnect(LNFSClient *client) {
     __block NSError *failError = nil;
     __block NSArray *failItems = nil;
     waitForCompletion(^(dispatch_semaphore_t sem) {
-        [client contentsOfDirectoryAtPath:@"/" recursive:NO exportName:kExport completion:^(NSArray<LNFSFileItem *> *items, NSError *error) {
+        [client contentsOfDirectoryAtPath:@"/" recursive:NO completion:^(NSArray<LNFSFileItem *> *items, NSError *error) {
             failError = error;
             failItems = items;
             dispatch_semaphore_signal(sem);
@@ -1210,7 +1239,7 @@ static void testDisconnectAndReconnect(LNFSClient *client) {
     __block NSError *verifyError = nil;
     __block LNFSFileItem *verifyItem = nil;
     waitForCompletion(^(dispatch_semaphore_t sem) {
-        [client attributesOfItemAtPath:@"/" exportName:kExport completion:^(LNFSFileItem *item, NSError *error) {
+        [client attributesOfItemAtPath:@"/" completion:^(LNFSFileItem *item, NSError *error) {
             verifyItem = item;
             verifyError = error;
             dispatch_semaphore_signal(sem);
@@ -1232,7 +1261,7 @@ static void testErrorCases(LNFSClient *client) {
     // Stat non-existent path
     __block NSError *statError = nil;
     waitForCompletion(^(dispatch_semaphore_t sem) {
-        [client attributesOfItemAtPath:@"/nonexistent_path_12345" exportName:kExport completion:^(LNFSFileItem *item, NSError *error) {
+        [client attributesOfItemAtPath:@"/nonexistent_path_12345" completion:^(LNFSFileItem *item, NSError *error) {
             statError = error;
             dispatch_semaphore_signal(sem);
         }];
@@ -1246,7 +1275,7 @@ static void testErrorCases(LNFSClient *client) {
     // Read non-existent file
     __block NSError *readError = nil;
     waitForCompletion(^(dispatch_semaphore_t sem) {
-        [client contentsAtPath:@"/nonexistent_file_12345.txt" exportName:kExport progress:nil
+        [client contentsAtPath:@"/nonexistent_file_12345.txt" progress:nil
                     completion:^(NSData *data, NSError *error) {
             readError = error;
             dispatch_semaphore_signal(sem);
@@ -1261,7 +1290,7 @@ static void testErrorCases(LNFSClient *client) {
     // Remove non-existent file
     __block NSError *removeError = nil;
     waitForCompletion(^(dispatch_semaphore_t sem) {
-        [client removeFileAtPath:@"/nonexistent_file_12345.txt" exportName:kExport completion:^(NSError *error) {
+        [client removeFileAtPath:@"/nonexistent_file_12345.txt" completion:^(NSError *error) {
             removeError = error;
             dispatch_semaphore_signal(sem);
         }];
@@ -1275,7 +1304,7 @@ static void testErrorCases(LNFSClient *client) {
     // Rmdir non-existent directory
     __block NSError *rmdirError = nil;
     waitForCompletion(^(dispatch_semaphore_t sem) {
-        [client removeDirectoryAtPath:@"/nonexistent_dir_12345" recursive:NO exportName:kExport completion:^(NSError *error) {
+        [client removeDirectoryAtPath:@"/nonexistent_dir_12345" recursive:NO completion:^(NSError *error) {
             rmdirError = error;
             dispatch_semaphore_signal(sem);
         }];
@@ -1290,7 +1319,7 @@ static void testErrorCases(LNFSClient *client) {
     __block NSError *lsError = nil;
     waitForCompletion(^(dispatch_semaphore_t sem) {
         [client contentsOfDirectoryAtPath:@"/nonexistent_dir_12345" recursive:NO
-                              exportName:kExport completion:^(NSArray<LNFSFileItem *> *items, NSError *error) {
+                             completion:^(NSArray<LNFSFileItem *> *items, NSError *error) {
             lsError = error;
             dispatch_semaphore_signal(sem);
         }];
@@ -1305,7 +1334,7 @@ static void testErrorCases(LNFSClient *client) {
     __block NSError *readlinkError = nil;
     waitForCompletion(^(dispatch_semaphore_t sem) {
         [client destinationOfSymbolicLinkAtPath:@"/nonexistent_link_12345"
-                                    exportName:kExport completion:^(NSString *dest, NSError *error) {
+                                   completion:^(NSString *dest, NSError *error) {
             readlinkError = error;
             dispatch_semaphore_signal(sem);
         }];
@@ -1320,7 +1349,7 @@ static void testErrorCases(LNFSClient *client) {
     __block NSError *truncError = nil;
     waitForCompletion(^(dispatch_semaphore_t sem) {
         [client truncateFileAtPath:@"/nonexistent_file_12345.txt" toOffset:0
-                       exportName:kExport completion:^(NSError *error) {
+                      completion:^(NSError *error) {
             truncError = error;
             dispatch_semaphore_signal(sem);
         }];
@@ -1338,7 +1367,7 @@ static void testDisconnect(LNFSClient *client) {
 
     __block NSError *error = nil;
     waitForCompletion(^(dispatch_semaphore_t sem) {
-        [client disconnectFromExport:kExport gracefully:YES completion:^(NSError *err) {
+        [client disconnectFromExportGracefully:YES completion:^(NSError *err) {
             error = err;
             dispatch_semaphore_signal(sem);
         }];
@@ -1418,7 +1447,7 @@ int main(int argc, const char * argv[]) {
         GROUP(@"Cleanup");
         __block NSError *cleanupError = nil;
         waitForCompletion(^(dispatch_semaphore_t sem) {
-            [serverClient removeItemAtPath:testDir exportName:kExport completion:^(NSError *error) {
+            [serverClient removeItemAtPath:testDir completion:^(NSError *error) {
                 cleanupError = error;
                 dispatch_semaphore_signal(sem);
             }];
@@ -1426,12 +1455,12 @@ int main(int argc, const char * argv[]) {
         if (cleanupError) {
             waitForCompletion(^(dispatch_semaphore_t sem) {
                 [serverClient removeFileAtPath:[testDir stringByAppendingPathComponent:@"testfile.txt"]
-                              exportName:kExport completion:^(NSError *error) {
+                             completion:^(NSError *error) {
                     dispatch_semaphore_signal(sem);
                 }];
             });
             waitForCompletion(^(dispatch_semaphore_t sem) {
-                [serverClient removeDirectoryAtPath:testDir recursive:YES exportName:kExport completion:^(NSError *error) {
+                [serverClient removeDirectoryAtPath:testDir recursive:YES completion:^(NSError *error) {
                     dispatch_semaphore_signal(sem);
                 }];
             });

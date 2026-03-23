@@ -276,6 +276,12 @@ https://sites.google.com/site/libnfstarballs/li
 
 
 
+LICENSING
+=========
+While NFSClient source code shipped with project is MIT licensed,
+but libnfs which is LGPL v2.1.
+
+
 MAILING LIST
 ============
 A libnfs mailing list is available at http://groups.google.com/group/libnfs
