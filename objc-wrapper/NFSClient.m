@@ -165,10 +165,12 @@
         }
 
         struct exportnode *exports;
+        int timeoutMs = (int)(strongSelf.timeout * 1000);
+        if (timeoutMs <= 0) { timeoutMs = 10000; }
         if (strongSelf->_port > 0) {
             exports = mount_getexports_mountport([strongSelf->_host UTF8String], strongSelf->_port);
         } else {
-            exports = mount_getexports([strongSelf->_host UTF8String]);
+            exports = mount_getexports_timeout([strongSelf->_host UTF8String], timeoutMs);
         }
 
         if (!exports) {
