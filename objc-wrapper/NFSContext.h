@@ -78,16 +78,22 @@ FOUNDATION_EXTERN NSString *const LNFSErrorDomain;
                            progress:(BOOL(^ _Nullable)(int64_t bytes, int64_t total))progress
                               error:(NSError **)error;
 
+- (BOOL)readFileAtPath:(NSString *)path
+             toFileURL:(NSURL *)localURL
+              progress:(BOOL(^ _Nullable)(int64_t bytes, int64_t total))progress
+                 error:(NSError **)error;
+
 - (BOOL)writeData:(NSData *)data
            toPath:(NSString *)path
          progress:(BOOL(^ _Nullable)(int64_t bytes))progress
             error:(NSError **)error;
 
-// Streaming file I/O (avoids loading entire file into memory)
-- (BOOL)readFileAtPath:(NSString *)path
-             toFileURL:(NSURL *)localURL
-              progress:(BOOL(^ _Nullable)(int64_t bytes, int64_t total))progress
-                 error:(NSError **)error;
+- (BOOL)writeData:(NSData *)data
+            toPath:(NSString *)path
+            offset:(uint64_t)offset
+      bytesWritten:(uint64_t * _Nullable)bytesWrittenOut
+          progress:(BOOL(^ _Nullable)(int64_t chunkBytesWritten, int64_t totalBytesWritten))progress
+            error:(NSError **)error;
 
 @end
 

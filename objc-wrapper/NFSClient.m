@@ -34,6 +34,8 @@
 #include <nfsc/libnfs.h>
 #include "libnfs-raw-mount.h"
 
+static char kLNFSClientQueueSpecificKey;
+
 @interface LNFSClient () {
     NSString *_host;
     int _port;
@@ -53,6 +55,7 @@
         _host = [host copy];
         _port = port;
         _queue = dispatch_queue_create("com.libnfs.client", DISPATCH_QUEUE_SERIAL);
+        dispatch_queue_set_specific(_queue, &kLNFSClientQueueSpecificKey, (__bridge void *)self, NULL);
         _timeout = 60.0;
         _uid = (int32_t)getuid();
         _gid = (int32_t)getgid();
@@ -77,11 +80,27 @@
 }
 
 - (BOOL)isConnected {
-    return [_context isConnected];
+    if (dispatch_get_specific(&kLNFSClientQueueSpecificKey)) {
+        return (_context != nil && [_context isConnected]);
+    } else {
+        __block BOOL connected = NO;
+        dispatch_sync(_queue, ^{
+            connected = (_context != nil && [_context isConnected]);
+        });
+        return connected;
+    }
 }
 
 - (NSString *_Nullable)exportName {
-    return _exportName;
+    if (dispatch_get_specific(&kLNFSClientQueueSpecificKey)) {
+        return _exportName;
+    } else {
+        __block NSString *name = nil;
+        dispatch_sync(_queue, ^{
+            name = _exportName;
+        });
+        return name;
+    }
 }
 
 #pragma mark - Context management
@@ -95,10 +114,19 @@
 }
 
 - (LNFSContext *_Nullable)connectedContext {
-    if ([_context isConnected]) {
-        return _context;
+    if (dispatch_get_specific(&kLNFSClientQueueSpecificKey)) {
+        LNFSContext *ctx = _context;
+        return (ctx != nil && [ctx isConnected]) ? ctx : nil;
+    } else {
+        __block LNFSContext *result = nil;
+        dispatch_sync(_queue, ^{
+            LNFSContext *ctx = _context;
+            if (ctx != nil && [ctx isConnected]) {
+                result = ctx;
+            }
+        });
+        return result;
     }
-    return nil;
 }
 
 #pragma mark - Connection
@@ -110,7 +138,16 @@
     dispatch_async(_queue, ^{
         __strong typeof(weakSelf) strongSelf = weakSelf;
         if (!strongSelf) {
-            completion([LNFSClient clientDeallocatedError]);
+            if (completion) {
+                completion([LNFSClient clientDeallocatedError]);
+            }
+            return;
+        }
+
+        if (strongSelf->_context != nil && strongSelf->_exportName != nil) {
+            if (completion) {
+                completion(nil);
+            }
             return;
         }
 
@@ -124,24 +161,28 @@
             strongSelf->_exportName = [exportName copy];
         }
 
-        completion(error);
+        if (completion) {
+            completion(error);
+        }
     });
 }
 
-- (void)disconnectFromExportGracefully:(BOOL)gracefully
-                            completion:(void(^)(NSError *))completion
-{
+- (void)disconnectFromExportWithCompletion:(void(^)(NSError *))completion {
     __weak typeof(self) weakSelf = self;
     dispatch_async(_queue, ^{
         __strong typeof(weakSelf) strongSelf = weakSelf;
         if (!strongSelf) {
-            completion(nil);
+            if (completion) {
+                completion(nil);
+            }
             return;
         }
 
         LNFSContext *ctx = [strongSelf connectedContext];
         if (!ctx) {
-            completion(nil);
+            if (completion) {
+                completion(nil);
+            }
             return;
         }
 
@@ -151,7 +192,9 @@
         strongSelf->_context = nil;
         strongSelf->_exportName = nil;
 
-        completion(error);
+        if (completion) {
+            completion(error);
+        }
     });
 }
 
@@ -160,24 +203,26 @@
     dispatch_async(_queue, ^{
         __strong typeof(weakSelf) strongSelf = weakSelf;
         if (!strongSelf) {
-            completion(nil, [LNFSClient clientDeallocatedError]);
+            if (completion) {
+                completion(nil, [LNFSClient clientDeallocatedError]);
+            }
             return;
         }
 
         struct exportnode *exports;
-        int timeoutMs = (int)(strongSelf.timeout * 1000);
-        if (timeoutMs <= 0) { timeoutMs = 10000; }
         if (strongSelf->_port > 0) {
             exports = mount_getexports_mountport([strongSelf->_host UTF8String], strongSelf->_port);
         } else {
-            exports = mount_getexports_timeout([strongSelf->_host UTF8String], timeoutMs);
+            exports = mount_getexports([strongSelf->_host UTF8String]);
         }
 
         if (!exports) {
             NSError *error = [NSError errorWithDomain:LNFSErrorDomain
                                                  code:-EIO
                                              userInfo:@{NSLocalizedDescriptionKey: @"Failed to list exports"}];
-            completion(nil, error);
+            if (completion) {
+                completion(nil, error);
+            }
             return;
         }
 
@@ -191,7 +236,9 @@
         }
         mount_free_export_list(exports);
 
-        completion(result, nil);
+        if (completion) {
+            completion(result, nil);
+        }
     });
 }
 
@@ -205,20 +252,26 @@
     dispatch_async(_queue, ^{
         __strong typeof(weakSelf) strongSelf = weakSelf;
         if (!strongSelf) {
-            completion(nil, [LNFSClient clientDeallocatedError]);
+            if (completion) {
+                completion(nil, [LNFSClient clientDeallocatedError]);
+            }
             return;
         }
 
         LNFSContext *ctx = [strongSelf connectedContext];
         if (!ctx) {
-            completion(nil, [LNFSClient noContextError]);
+            if (completion) {
+                completion(nil, [LNFSClient noContextError]);
+            }
             return;
         }
 
         NSError *error = nil;
         NSArray<LNFSFileItem *> *items = [ctx contentsOfDirectoryAtPath:path error:&error];
         if (!items) {
-            completion(nil, error);
+            if (completion) {
+                completion(nil, error);
+            }
             return;
         }
 
@@ -234,9 +287,13 @@
                     }
                 }
             }
-            completion(allItems, nil);
+            if (completion) {
+                completion(allItems, nil);
+            }
         } else {
-            completion(items, nil);
+            if (completion) {
+                completion(items, nil);
+            }
         }
     });
 }
@@ -263,20 +320,26 @@
     dispatch_async(_queue, ^{
         __strong typeof(weakSelf) strongSelf = weakSelf;
         if (!strongSelf) {
-            completion([LNFSClient clientDeallocatedError]);
+            if (completion) {
+                completion([LNFSClient clientDeallocatedError]);
+            }
             return;
         }
 
         LNFSContext *ctx = [strongSelf connectedContext];
         if (!ctx) {
-            completion([LNFSClient noContextError]);
+            if (completion) {
+                completion([LNFSClient noContextError]);
+            }
             return;
         }
 
         NSError *error = nil;
         [ctx mkdirAtPath:path error:&error];
 
-        completion(error);
+        if (completion) {
+            completion(error);
+        }
     });
 }
 
@@ -288,13 +351,17 @@
     dispatch_async(_queue, ^{
         __strong typeof(weakSelf) strongSelf = weakSelf;
         if (!strongSelf) {
-            completion([LNFSClient clientDeallocatedError]);
+            if (completion) {
+                completion([LNFSClient clientDeallocatedError]);
+            }
             return;
         }
 
         LNFSContext *ctx = [strongSelf connectedContext];
         if (!ctx) {
-            completion([LNFSClient noContextError]);
+            if (completion) {
+                completion([LNFSClient noContextError]);
+            }
             return;
         }
 
@@ -305,7 +372,9 @@
             [ctx rmdirAtPath:path error:&error];
         }
 
-        completion(error);
+        if (completion) {
+            completion(error);
+        }
     });
 }
 
@@ -340,20 +409,26 @@
     dispatch_async(_queue, ^{
         __strong typeof(weakSelf) strongSelf = weakSelf;
         if (!strongSelf) {
-            completion(nil, [LNFSClient clientDeallocatedError]);
+            if (completion) {
+                completion(nil, [LNFSClient clientDeallocatedError]);
+            }
             return;
         }
 
         LNFSContext *ctx = [strongSelf connectedContext];
         if (!ctx) {
-            completion(nil, [LNFSClient noContextError]);
+            if (completion) {
+                completion(nil, [LNFSClient noContextError]);
+            }
             return;
         }
 
         NSError *error = nil;
         LNFSFileItem *item = [ctx statItemAtPath:path error:&error];
 
-        completion(item, error);
+        if (completion) {
+            completion(item, error);
+        }
     });
 }
 
@@ -364,20 +439,26 @@
     dispatch_async(_queue, ^{
         __strong typeof(weakSelf) strongSelf = weakSelf;
         if (!strongSelf) {
-            completion(nil, [LNFSClient clientDeallocatedError]);
+            if (completion) {
+                completion(nil, [LNFSClient clientDeallocatedError]);
+            }
             return;
         }
 
         LNFSContext *ctx = [strongSelf connectedContext];
         if (!ctx) {
-            completion(nil, [LNFSClient noContextError]);
+            if (completion) {
+                completion(nil, [LNFSClient noContextError]);
+            }
             return;
         }
 
         NSError *error = nil;
         NSDictionary *attrs = [ctx statvfs64AtPath:path error:&error];
 
-        completion(attrs, error);
+        if (completion) {
+            completion(attrs, error);
+        }
     });
 }
 
@@ -388,20 +469,26 @@
     dispatch_async(_queue, ^{
         __strong typeof(weakSelf) strongSelf = weakSelf;
         if (!strongSelf) {
-            completion(nil, [LNFSClient clientDeallocatedError]);
+            if (completion) {
+                completion(nil, [LNFSClient clientDeallocatedError]);
+            }
             return;
         }
 
         LNFSContext *ctx = [strongSelf connectedContext];
         if (!ctx) {
-            completion(nil, [LNFSClient noContextError]);
+            if (completion) {
+                completion(nil, [LNFSClient noContextError]);
+            }
             return;
         }
 
         NSError *error = nil;
         NSString *dest = [ctx readlinkAtPath:path error:&error];
 
-        completion(dest, error);
+        if (completion) {
+            completion(dest, error);
+        }
     });
 }
 
@@ -414,20 +501,26 @@
     dispatch_async(_queue, ^{
         __strong typeof(weakSelf) strongSelf = weakSelf;
         if (!strongSelf) {
-            completion([LNFSClient clientDeallocatedError]);
+            if (completion) {
+                completion([LNFSClient clientDeallocatedError]);
+            }
             return;
         }
 
         LNFSContext *ctx = [strongSelf connectedContext];
         if (!ctx) {
-            completion([LNFSClient noContextError]);
+            if (completion) {
+                completion([LNFSClient noContextError]);
+            }
             return;
         }
 
         NSError *error = nil;
         [ctx unlinkAtPath:path error:&error];
 
-        completion(error);
+        if (completion) {
+            completion(error);
+        }
     });
 }
 
@@ -438,20 +531,26 @@
     dispatch_async(_queue, ^{
         __strong typeof(weakSelf) strongSelf = weakSelf;
         if (!strongSelf) {
-            completion([LNFSClient clientDeallocatedError]);
+            if (completion) {
+                completion([LNFSClient clientDeallocatedError]);
+            }
             return;
         }
 
         LNFSContext *ctx = [strongSelf connectedContext];
         if (!ctx) {
-            completion([LNFSClient noContextError]);
+            if (completion) {
+                completion([LNFSClient noContextError]);
+            }
             return;
         }
 
         NSError *error = nil;
         LNFSFileItem *item = [ctx statItemAtPath:path error:&error];
         if (!item) {
-            completion(error);
+            if (completion) {
+                completion(error);
+            }
             return;
         }
 
@@ -461,7 +560,9 @@
             [ctx unlinkAtPath:path error:&error];
         }
 
-        completion(error);
+        if (completion) {
+            completion(error);
+        }
     });
 }
 
@@ -473,21 +574,27 @@
     dispatch_async(_queue, ^{
         __strong typeof(weakSelf) strongSelf = weakSelf;
         if (!strongSelf) {
-            completion([LNFSClient clientDeallocatedError]);
+            if (completion) {
+                completion([LNFSClient clientDeallocatedError]);
+            }
             return;
         }
 
         LNFSContext *ctx = [strongSelf connectedContext];
 
         if (!ctx) {
-            completion([LNFSClient noContextError]);
+            if (completion) {
+                completion([LNFSClient noContextError]);
+            }
             return;
         }
 
         NSError *error = nil;
         [ctx renameFrom:from to:to error:&error];
 
-        completion(error);
+        if (completion) {
+            completion(error);
+        }
     });
 }
 
@@ -499,21 +606,27 @@
     dispatch_async(_queue, ^{
         __strong typeof(weakSelf) strongSelf = weakSelf;
         if (!strongSelf) {
-            completion([LNFSClient clientDeallocatedError]);
+            if (completion) {
+                completion([LNFSClient clientDeallocatedError]);
+            }
             return;
         }
 
         LNFSContext *ctx = [strongSelf connectedContext];
 
         if (!ctx) {
-            completion([LNFSClient noContextError]);
+            if (completion) {
+                completion([LNFSClient noContextError]);
+            }
             return;
         }
 
         NSError *error = nil;
         [ctx truncateAtPath:path offset:offset error:&error];
 
-        completion(error);
+        if (completion) {
+            completion(error);
+        }
     });
 }
 
@@ -536,21 +649,27 @@
     dispatch_async(_queue, ^{
         __strong typeof(weakSelf) strongSelf = weakSelf;
         if (!strongSelf) {
-            completion(nil, [LNFSClient clientDeallocatedError]);
+            if (completion) {
+                completion(nil, [LNFSClient clientDeallocatedError]);
+            }
             return;
         }
 
         LNFSContext *ctx = [strongSelf connectedContext];
 
         if (!ctx) {
-            completion(nil, [LNFSClient noContextError]);
+            if (completion) {
+                completion(nil, [LNFSClient noContextError]);
+            }
             return;
         }
 
         NSError *error = nil;
         NSData *data = [ctx readFileAtPath:path offset:offset length:length progress:progress error:&error];
 
-        completion(data, error);
+        if (completion) {
+            completion(data, error);
+        }
     });
 }
 
@@ -563,21 +682,27 @@
     dispatch_async(_queue, ^{
         __strong typeof(weakSelf) strongSelf = weakSelf;
         if (!strongSelf) {
-            completion([LNFSClient clientDeallocatedError]);
+            if (completion) {
+                completion([LNFSClient clientDeallocatedError]);
+            }
             return;
         }
 
         LNFSContext *ctx = [strongSelf connectedContext];
 
         if (!ctx) {
-            completion([LNFSClient noContextError]);
+            if (completion) {
+                completion([LNFSClient noContextError]);
+            }
             return;
         }
 
         NSError *error = nil;
         [ctx writeData:data toPath:path progress:progress error:&error];
 
-        completion(error);
+        if (completion) {
+            completion(error);
+        }
     });
 }
 
@@ -588,34 +713,102 @@
 {
     __weak typeof(self) weakSelf = self;
     dispatch_async(_queue, ^{
-        NSError *error = nil;
-        NSData *data = [NSData dataWithContentsOfURL:url
-                                             options:NSDataReadingMappedIfSafe
-                                               error:&error];
-        if (!data) {
-            if (!error) {
-                error = [NSError errorWithDomain:LNFSErrorDomain
-                                            code:-EIO
-                                        userInfo:@{NSLocalizedDescriptionKey: @"Failed to read local file"}];
-            }
-            completion(error);
-            return;
-        }
-
         __strong typeof(weakSelf) strongSelf = weakSelf;
         if (!strongSelf) {
-            completion([LNFSClient clientDeallocatedError]);
+            if (completion) {
+                completion([LNFSClient clientDeallocatedError]);
+            }
             return;
         }
 
         LNFSContext *ctx = [strongSelf connectedContext];
         if (!ctx) {
-            completion([LNFSClient noContextError]);
+            if (completion) {
+                completion([LNFSClient noContextError]);
+            }
             return;
         }
 
-        [ctx writeData:data toPath:path progress:progress error:&error];
-        completion(error);
+        NSError *error = nil;
+
+        NSFileHandle *fileHandle = [NSFileHandle fileHandleForReadingFromURL:url error:&error];
+        if (!fileHandle) {
+            if (!error) {
+                error = [NSError errorWithDomain:LNFSErrorDomain
+                                            code:-EIO
+                                        userInfo:@{NSLocalizedDescriptionKey: @"Failed to open local file"}];
+            }
+            if (completion) {
+                completion(error);
+            }
+            return;
+        }
+
+        NSNumber *fileSizeValue = nil;
+        if (![url getResourceValue:&fileSizeValue forKey:NSURLFileSizeKey error:&error]) {
+            [fileHandle closeFile];
+            if (!error) {
+                error = [NSError errorWithDomain:LNFSErrorDomain
+                                            code:-EIO
+                                        userInfo:@{NSLocalizedDescriptionKey: @"Failed to get local file size"}];
+            }
+            if (completion) {
+                completion(error);
+            }
+            return;
+        }
+
+        uint64_t totalSize = [fileSizeValue unsignedLongLongValue];
+        uint64_t totalUploaded = 0;
+        uint64_t remoteOffset = 0;
+
+        // Start a fresh upload.
+        [ctx truncateAtPath:path offset:0 error:nil];
+
+        static const NSUInteger localChunkSize = 1024 * 1024; // 1 MB
+
+        while (totalUploaded < totalSize) {
+            @autoreleasepool {
+                NSUInteger bytesToRead = (NSUInteger)MIN((uint64_t)localChunkSize, totalSize - totalUploaded);
+                NSData *chunk = [fileHandle readDataOfLength:bytesToRead];
+
+                if (chunk.length == 0) {
+                    error = [NSError errorWithDomain:LNFSErrorDomain
+                                                code:-EIO
+                                            userInfo:@{NSLocalizedDescriptionKey: @"Unexpected end of local file during upload"}];
+                    break;
+                }
+
+                uint64_t nextOffset = remoteOffset;
+                BOOL success = [ctx writeData:chunk
+                                       toPath:path
+                                       offset:remoteOffset
+                                 bytesWritten:&nextOffset
+                                     progress:nil
+                                        error:&error];
+                if (!success) {
+                    break;
+                }
+
+                remoteOffset = nextOffset;
+                totalUploaded += (uint64_t)chunk.length;
+
+                if (progress) {
+                    if (!progress((int64_t)totalUploaded)) {
+                        error = [NSError errorWithDomain:LNFSErrorDomain
+                                                    code:-ECANCELED
+                                                userInfo:@{NSLocalizedDescriptionKey: @"Cancelled"}];
+                        break;
+                    }
+                }
+            }
+        }
+
+        [fileHandle closeFile];
+
+        if (completion) {
+            completion(error);
+        }
     });
 }
 
@@ -628,20 +821,27 @@
     dispatch_async(_queue, ^{
         __strong typeof(weakSelf) strongSelf = weakSelf;
         if (!strongSelf) {
-            completion([LNFSClient clientDeallocatedError]);
+            if (completion) {
+                completion([LNFSClient clientDeallocatedError]);
+            }
             return;
         }
 
         LNFSContext *ctx = [strongSelf connectedContext];
 
         if (!ctx) {
-            completion([LNFSClient noContextError]);
+            if (completion) {
+                completion([LNFSClient noContextError]);
+            }
             return;
         }
 
         NSError *error = nil;
         [ctx readFileAtPath:path toFileURL:url progress:progress error:&error];
-        completion(error);
+
+        if (completion) {
+            completion(error);
+        }
     });
 }
 
@@ -660,3 +860,4 @@
 }
 
 @end
+

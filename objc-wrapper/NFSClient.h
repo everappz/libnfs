@@ -51,8 +51,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)connectToExport:(NSString *)exportName
              completion:(void(^)(NSError *))completion;
 
-- (void)disconnectFromExportGracefully:(BOOL)gracefully
-                            completion:(void(^)(NSError * _Nullable error))completion;
+- (void)disconnectFromExportWithCompletion:(void(^)(NSError * _Nullable error))completion;
 
 - (void)listExportsWithCompletion:(void(^)(NSArray<NSString *> * _Nullable exports,
                                            NSError * _Nullable error))completion;

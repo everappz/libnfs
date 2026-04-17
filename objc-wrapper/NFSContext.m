@@ -689,4 +689,85 @@ static const size_t kDefaultChunkSize = 1048576; // 1 MB
     return YES;
 }
 
+- (BOOL)writeData:(NSData *)data
+            toPath:(NSString *)path
+            offset:(uint64_t)offset
+      bytesWritten:(uint64_t * _Nullable)bytesWrittenOut
+          progress:(BOOL(^ _Nullable)(int64_t chunkBytesWritten, int64_t totalBytesWritten))progress
+             error:(NSError **)error
+{
+    [_lock lock];
+
+    if (!_nfs) {
+        [_lock unlock];
+        if (error) *error = [LNFSContext errorWithMessage:@"Not connected" code:-ENOTCONN];
+        return NO;
+    }
+
+    struct nfsfh *nfsfh = NULL;
+    int ret = nfs_open(_nfs, [path UTF8String], O_WRONLY | O_CREAT, &nfsfh);
+    if (ret != 0) {
+        [_lock unlock];
+        if (error) *error = [self errorWithCode:ret];
+        return NO;
+    }
+
+    size_t chunkSize = nfs_get_writemax(_nfs);
+    if (chunkSize == 0 || chunkSize > kDefaultChunkSize) {
+        chunkSize = kDefaultChunkSize;
+    }
+
+    const uint8_t *bytes = (const uint8_t *)data.bytes;
+    int64_t totalSize = (int64_t)data.length;
+    int64_t localBytesWritten = 0;
+    uint64_t currentOffset = offset;
+
+    while (localBytesWritten < totalSize) {
+        size_t toWrite = (size_t)(totalSize - localBytesWritten);
+        if (toWrite > chunkSize) {
+            toWrite = chunkSize;
+        }
+
+        int nwritten = nfs_pwrite(_nfs,
+                                  nfsfh,
+                                  (void *)(bytes + localBytesWritten),
+                                  toWrite,
+                                  currentOffset);
+        if (nwritten < 0) {
+            nfs_close(_nfs, nfsfh);
+            [_lock unlock];
+            if (error) *error = [self errorWithCode:nwritten];
+            return NO;
+        }
+
+        if (nwritten == 0) {
+            nfs_close(_nfs, nfsfh);
+            [_lock unlock];
+            if (error) *error = [LNFSContext errorWithMessage:@"Write returned 0 bytes" code:-EIO];
+            return NO;
+        }
+
+        localBytesWritten += nwritten;
+        currentOffset += (uint64_t)nwritten;
+
+        if (progress) {
+            if (!progress(localBytesWritten, (int64_t)currentOffset)) {
+                nfs_close(_nfs, nfsfh);
+                [_lock unlock];
+                if (error) *error = [LNFSContext errorWithMessage:@"Cancelled" code:-ECANCELED];
+                return NO;
+            }
+        }
+    }
+
+    nfs_close(_nfs, nfsfh);
+    [_lock unlock];
+
+    if (bytesWrittenOut) {
+        *bytesWrittenOut = currentOffset;
+    }
+
+    return YES;
+}
+
 @end
